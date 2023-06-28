@@ -6,6 +6,7 @@ class User(Base):
     __tablename__ = 'users'
     id = Column(Integer, primary_key=True)
     name = Column(String(255), nullable=False)
+    email = Column(String(255), nullable=False)
     picture = Column(String(255))
     created_at = Column(DateTime)
 
@@ -35,7 +36,7 @@ class Business(Base):
 class Review(Base):
     __tablename__ = 'reviews'
     id = Column(Integer, primary_key=True)
-    name = Column(String(255), nullable=False)
+    user_id = Column(String(255), nullable=False)
     rating = Column(Integer)
     created_at = Column(DateTime)
     text = Column(Text)
