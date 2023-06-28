@@ -51,38 +51,11 @@ cd walrus
 ```
 
 Install the dependencies:
-shell
-Copy code
-pip install -r requirements.txt
-
-
-I apologize for the confusion. Here's the updated README.md file with the complete information, including the installation steps, contribution guide, and API documentation, all in copyable markdown format:
-
-markdown
-Copy code
-# Walrus - FastAPI Backend
-
-Walrus is a FastAPI backend application that utilizes SQLAlchemy ORM to interact with a database. It provides endpoints to manage users, businesses, and reviews, allowing users to create, retrieve, update, and delete records.
-
-## Requirements
-
-- Python 3.6+
-- pip (Python package manager)
-
-## Installation
-
-1. Clone the repository:
-
-```shell
-    git clone https://github.com/your-username/walrus.git
-    cd walrus
-
-```
-## Install the dependencies:
 
 ```shell
     pip install -r requirements.txt
 ```
+
 ## Set up the database:
 Configure your database connection in the database/database.py file.
 Run the migrations to create the necessary tables:
