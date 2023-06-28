@@ -1,6 +1,14 @@
-# Walrus - FastAPI Backend
+
+<div align="center">
+
+<h1>Walrus</h1>
+
+</div>
 
 Walrus is a FastAPI backend application that utilizes SQLAlchemy ORM to interact with a database. It provides endpoints to manage users, businesses, and reviews, allowing users to create, retrieve, update, and delete records.
+
+![cartoon-walrus-isolated-on-white-background-free-vector](https://github.com/lofyhub/walrus/assets/60175531/0280a472-e605-4144-bb81-506af3b5025b)
+
 
 ## Database Models
 
