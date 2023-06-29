@@ -1,13 +1,15 @@
 from fastapi import FastAPI
 import uvicorn
 from config.config import settings
+from routes.business import business_routes
 
 app=FastAPI()
+app.include_router(business_routes)
 
 @app.get('/health')
 async def health_check():
     return {
-        'app_name': settings.app_name,
+        'app_name': settings.APP_NAME,
         'status':'ok 👍 '
         }
 

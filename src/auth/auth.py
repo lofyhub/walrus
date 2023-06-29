@@ -1,12 +1,12 @@
 import jwt
 from config.config import settings
-from schema.schema import SignUser
+from schema.schema import UserPayload
 from datetime import datetime, timedelta
 
 JWT_SECRET = settings.JWT_SECRET
 JWT_ALGORITHM = settings.JWT_ALGORITHM
 
-def sign_jwt(user: SignUser):
+def sign_jwt(user: UserPayload):
     expiration_time = datetime.utcnow() + timedelta(hours=24)
     payload = {
         "user_id": user.fullname,

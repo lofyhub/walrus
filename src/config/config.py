@@ -5,14 +5,14 @@ from functools import lru_cache
 load_dotenv(".env")
 
 class Settings(BaseSettings):
-    app_name: str = "WALRUS_API"
-    CLOUDINARY_API_ID: str
+    APP_NAME: str
+    PORT: str
+    CLOUDINARY_CLOUD_NAME: str
+    CLOUDINARY_API_SECRET: str
     CLOUDINARY_API_KEY: str
-    CLOUDINARY_URL: str
     JWT_SECRET:str
     JWT_ALGORITHM:str
-    PORT: str
-    
+
     class Config:
         env_file = ".env"
 

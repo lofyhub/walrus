@@ -2,7 +2,13 @@ from pydantic import BaseModel
 from typing import Optional, List
 from dataclasses import dataclass
 from enum import Enum
+from pydantic import BaseModel
 
+class BusinessSaveResponse(BaseModel):
+    status: str
+    message: str
+class SQLAlchemyErrorMessage(BaseModel):
+    detail:str = "An error occurred while processing your request. Please try again later"
 
 class County(Enum):
     Mombasa = 'Mombasa'
@@ -51,16 +57,30 @@ class County(Enum):
     Migori = 'Migori'
     Kisii = 'Kisii'
     Nyamira = 'Nyamira'
-    Nairobi_City = 'Nairobi City'
+    Nairobi = 'Nairobi'
+
+def get_county_str(county: County) -> str:
+    return county.value
 
 
-
-class UserPayload:
+class UserPayload(BaseModel):
     fullname: str
     email: str
     picture: str
 
-class BusinessPayload:
+class BusinessPayload(BaseModel):
+    name: str
+    handle: str
+    images: list[str]
+    location: County
+    opening: str
+    business_description: str
+    telephone_number: str
+    category: str
+    amenities: List[str]
+    user_id: str
+
+class BusinessPayloadd(BaseModel):
     name: str
     handle: str
     images: list[str]
@@ -70,8 +90,25 @@ class BusinessPayload:
     telephone_number: str
     category: str
     user_id: str
+    amenities: List[str]
+    creation_date: str
 
-class ReviewPayload:
+class ResponseBusiness(BaseModel):
+    id: int
+    name: str
+    handle: str
+    images: List[str]
+    location: str
+    opening: str
+    business_description: str
+    creation_date: str
+    verified: bool
+    telephone_number: str
+    category: str
+    amenities: List[str]
+    user_id: int
+
+class ReviewPayload(BaseModel):
     user_id: str
     rating: int
     text: str
