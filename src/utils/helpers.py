@@ -1,7 +1,9 @@
 from typing import List
-import cloudinary.uploader
-from fastapi import HTTPException, status
+from cloudinary.uploader import upload
+import cloudinary
+from fastapi import HTTPException, status, UploadFile
 from config.config import settings
+import asyncio
 
 cloudinary.config(
     cloud_name=settings.CLOUDINARY_CLOUD_NAME,
@@ -9,12 +11,14 @@ cloudinary.config(
     api_secret=settings.CLOUDINARY_API_SECRET
 )
 
-async def upload_image(base64_images_list: List[str]):
+async def upload_image(files:list[UploadFile]):
     try:
-        uploaded_paths = []
-        for image_data in base64_images_list:
-            cloudinary_response = cloudinary.uploader.upload(image_data)
-            uploaded_paths.append(cloudinary_response['secure_url'])
+        async def upload_file(file):
+            file_content = await file.read()
+            cloudinary_response = await asyncio.to_thread(upload, file_content)
+            return cloudinary_response['secure_url']
+        upload_tasks = [upload_file(file) for file in files]
+        uploaded_paths = await asyncio.gather(*upload_tasks)
         return uploaded_paths
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Error uploading images: {e}")

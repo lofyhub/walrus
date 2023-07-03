@@ -1,13 +1,26 @@
+from fastapi import UploadFile
 from pydantic import BaseModel
-from typing import Optional, List
+from typing import List
 from dataclasses import dataclass
 from enum import Enum
 from pydantic import BaseModel
 
-class BusinessSaveResponse(BaseModel):
+
+class OurBaseModel(BaseModel):
+    class Config:
+        orm_mode = True
+
+class ImageFile(OurBaseModel):
+    filename: str
+    content_type: str
+    file: UploadFile
+
+class BusinessSaveResponse(OurBaseModel):
     status: str
     message: str
-class SQLAlchemyErrorMessage(BaseModel):
+
+
+class SQLAlchemyErrorMessage(OurBaseModel):
     detail:str = "An error occurred while processing your request. Please try again later"
 
 class County(Enum):
@@ -63,29 +76,29 @@ def get_county_str(county: County) -> str:
     return county.value
 
 
-class UserPayload(BaseModel):
+class UserPayload(OurBaseModel):
     fullname: str
     email: str
     picture: str
 
-class BusinessPayload(BaseModel):
+class BusinessPayload(OurBaseModel):
     name: str
     handle: str
     images: list[str]
     location: County
-    opening: str
+    opening_hours: list[str]
     business_description: str
     telephone_number: str
     category: str
     amenities: List[str]
     user_id: str
 
-class BusinessPayloadd(BaseModel):
+class BusinessPayloadd(OurBaseModel):
     name: str
     handle: str
     images: list[str]
     location: County
-    opening: str
+    opening_hours: list[str]
     business_description: str
     telephone_number: str
     category: str
@@ -93,24 +106,29 @@ class BusinessPayloadd(BaseModel):
     amenities: List[str]
     creation_date: str
 
-class ResponseBusiness(BaseModel):
+class ResponseBusiness(OurBaseModel):
     id: int
     name: str
     handle: str
-    images: List[str]
     location: str
-    opening: str
-    business_description: str
-    creation_date: str
     verified: bool
     telephone_number: str
     category: str
-    amenities: List[str]
     user_id: int
+    business_description: str
+    opening_hours: List[str]
+    amenities: List[str]
+    images: List[str]
+    creation_date: str
 
-class ReviewPayload(BaseModel):
+class ReviewPayload(OurBaseModel):
     user_id: str
     rating: int
     text: str
     image: List[str]
     business_id: str
+
+
+class OkResponse(OurBaseModel):
+    status: str
+    data: List[ResponseBusiness]

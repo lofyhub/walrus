@@ -14,7 +14,7 @@ async def health_check():
         }
 
 if __name__ == "__main__":
-    port = settings.PORT
+    port = int(settings.PORT)
 
     app_module = "main:app"
     uvicorn.run(app_module, host="0.0.0.0", port=port, reload=True)
