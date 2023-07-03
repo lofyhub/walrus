@@ -237,4 +237,18 @@ The API uses these models to manage and retrieve user, business, and review data
   - `500`: Internal server error.
 
 
-Contribution
+## Contribution
+
+Contributions are welcome! If you would like to contribute to this project, please follow these steps:
+
+1. Fork the repository.
+2. Create a new branch for your contribution.
+3. Make your changes and commit them with descriptive messages.
+4. Push your changes to your forked repository.
+5. Submit a pull request, explaining your changes and why they should be merged.
+
+Please ensure that your contributions adhere to the [Code of Conduct](CONTRIBUTING.md) and the coding standards of this project.
+
+## License
+
+This project is licensed under the [MIT License](LICENSE). You are free to use, modify, and distribute this software for personal or commercial purposes. Please see the [LICENSE](LICENSE) file for more details.
