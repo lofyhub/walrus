@@ -10,44 +10,7 @@ Walrus is a FastAPI backend application that utilizes SQLAlchemy ORM to interact
 ![cartoon-walrus-isolated-on-white-background-free-vector](https://github.com/lofyhub/walrus/assets/60175531/0280a472-e605-4144-bb81-506af3b5025b)
 
 
-## Database Models
 
-The application uses the following database models:
-
-### User
-
-- `id`: Integer, primary key of the user.
-- `name`: String(255), name of the user.
-- `picture`: String(255), URL to the user's picture.
-- `created_at`: DateTime, date and time of user creation.
-
-### Business
-
-- `id`: Integer, primary key of the business.
-- `name`: String(255), name of the business.
-- `handle`: String(255), handle of the business.
-- `reviews`: Integer, number of reviews for the business.
-- `review_score`: Float, review score of the business.
-- `location`: String(255), location of the business.
-- `opening`: Boolean, status of the business (open or closed).
-- `business_description`: Text, description of the business.
-- `creation_date`: String(255), date of business creation.
-- `verified`: Boolean, verification status of the business.
-- `telephone_number`: String(255), telephone number of the business.
-- `category`: String(255), category of the business.
-- `user_id`: Integer, foreign key referencing the User model.
-- `user`: Relationship with the User model.
-
-### Review
-
-- `id`: Integer, primary key of the review.
-- `name`: String(255), name of the reviewer.
-- `rating`: Integer, rating of the review.
-- `created_at`: DateTime, date and time of the review.
-- `text`: Text, review text.
-- `image`: String(255), URL to the review image.
-- `business_id`: Integer, foreign key referencing the Business model.
-- `business`: Relationship with the Business model.
 
 ## Installation
 
@@ -76,6 +39,53 @@ To run the project, execute the following command:
 python src/main.py
 ```
 This will start the FastAPI server, and you can access the API endpoints through http://localhost:8000.
+
+
+## API Models
+
+The API utilizes the following SQLAlchemy models for data storage and retrieval:
+
+### User
+
+- **Attributes:**
+  - `id` (Integer, primary key): The unique identifier of the user.
+  - `name` (String, max length 255, required): The name of the user.
+  - `email` (String, max length 255, required): The email address of the user.
+  - `picture` (String, max length 255, required): The URL to the user's picture.
+  - `created_at` (DateTime, required): The date and time of user creation.
+
+### Business
+
+- **Attributes:**
+  - `id` (Integer, primary key): The unique identifier of the business.
+  - `name` (String, max length 255, required): The name of the business.
+  - `handle` (String, max length 255, required): The handle of the business.
+  - `images` (List of Strings, required): URLs to the images associated with the business.
+  - `location` (String, max length 255, required): The location of the business.
+  - `opening_hours` (List of Strings, required): The opening hours of the business.
+  - `business_description` (String, max length 255, required): The description of the business.
+  - `created_at` (DateTime, required): The date and time of business creation.
+  - `verified` (Boolean, required): The verification status of the business.
+  - `telephone_number` (String, max length 255, required): The telephone number of the business.
+  - `category` (String, max length 255, required): The category of the business.
+  - `amenities` (List of Strings, required): The amenities provided by the business.
+  - `user_id` (Integer, foreign key referencing the User model, required): The ID of the associated user.
+
+### Review
+
+- **Attributes:**
+  - `id` (Integer, primary key): The unique identifier of the review.
+  - `user_id` (Integer, foreign key referencing the User model, required): The ID of the user who posted the review.
+  - `rating` (Integer, required): The rating of the review.
+  - `created_at` (DateTime, required): The date and time when the review was created.
+  - `text` (Text, required): The text content of the review.
+  - `images` (List of Strings, required): URLs to the images associated with the review.
+  - `business_id` (Integer, foreign key referencing the Business model, required): The ID of the associated business.
+
+The API uses these models to manage and retrieve user, business, and review data. Each model represents a table in the database, and the relationships between models enable efficient querying and data retrieval.
+
+
+
 
 ## API ENDPOINTS
 
