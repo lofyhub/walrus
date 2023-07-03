@@ -24,7 +24,7 @@ class Business(Base):
     location = Column(String(255), nullable=False)
     opening_hours = Column(MutableList.as_mutable(PickleType), nullable=False)
     business_description = Column(String(255), nullable=False)
-    creation_date = Column(String(255), nullable=False)
+    created_at = Column(DateTime, nullable=False)
     verified = Column(Boolean, nullable=False)
     telephone_number = Column(String(255), nullable=False)
     category = Column(String(255), nullable=False)
@@ -42,7 +42,7 @@ class Review(Base):
     rating = Column(Integer, nullable=False)
     created_at = Column(DateTime, nullable=False)
     text = Column(Text, nullable=False)
-    image = Column(String(255), nullable=False)
+    images = Column(MutableList.as_mutable(PickleType),default=[], nullable=False)
     business_id = Column(Integer, ForeignKey('businesses.id'), nullable=False)
 
     business = relationship("Business", back_populates="reviews")

@@ -2,14 +2,13 @@ from fastapi import status, HTTPException, APIRouter, Response, Form, UploadFile
 from typing import Annotated, Dict, Any
 from fastapi.security import OAuth2PasswordBearer
 from database.database import SessionLocal
-from schema.schema import ResponseBusiness, BusinessSaveResponse, SQLAlchemyErrorMessage, OkResponse
+from schema.schema import ResponseBusiness, SaveResponse, SQLAlchemyErrorMessage, OkResponse
 from models.models import Business
 from datetime import datetime
 from typing import List
 from sqlalchemy.exc import SQLAlchemyError
 from auth.auth import decode_jwt
 from utils.helpers import upload_image
-import json
 
 # Create a database session
 db = SessionLocal()
@@ -30,7 +29,7 @@ async def get_user_from_token(token: str):
 
 
 # Endpoint for saving businesse
-@router.post('/businesses/', response_model=BusinessSaveResponse, status_code=status.HTTP_201_CREATED)
+@router.post('/businesses/', response_model=SaveResponse, status_code=status.HTTP_201_CREATED)
 async def save_business(
     images: List[UploadFile],
     name: Annotated[str, Form()],
@@ -61,12 +60,12 @@ async def save_business(
                 user_id = user_id,
                 amenities = amenities,
                 verified = False,
-                creation_date = datetime.now().strftime("%Y-%m-%d"),
+                created_at = datetime.now(),
         )
 
         db.add(new_business)
         db.commit()
-        response = BusinessSaveResponse(status='Ok', message=f"Business successfully saved")
+        response = SaveResponse(status='Ok', message="Business successfully saved")
         return Response(content=response.json(), media_type='application/json', status_code=status.HTTP_201_CREATED)
     except SQLAlchemyError:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=SQLAlchemyErrorMessage)
@@ -78,7 +77,6 @@ async def save_business(
 async def get_businesses(skip: int = 0, limit: int = 100):
     try:
         all_businesses: List[ResponseBusiness] = db.query(Business).offset(skip).limit(limit).all()
-        print(all_businesses)
         return all_businesses
     except SQLAlchemyError:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=SQLAlchemyErrorMessage)
@@ -86,7 +84,7 @@ async def get_businesses(skip: int = 0, limit: int = 100):
 
 
 # Endpoint for updating a business
-@router.put('/businesses/{business_id}/',response_model=BusinessSaveResponse, status_code=status.HTTP_200_OK)
+@router.put('/businesses/{business_id}/',response_model=SaveResponse, status_code=status.HTTP_200_OK)
 async def update_a_business(business_id: int, business_to_update: ResponseBusiness):
     try:
         entry_to_update = db.query(Business).filter(Business.id == business_id).first()
@@ -108,10 +106,10 @@ async def update_a_business(business_id: int, business_to_update: ResponseBusine
         entry_to_update.telephone_number = business_to_update.telephone_number,
         entry_to_update.category = business_to_update.category,
         entry_to_update.user_id = business_to_update.user_id,
-        entry_to_update.creation_date = datetime.now().strftime("%Y-%m-%d"),
+        entry_to_update.created_at = datetime.now(),
 
         db.commit()
-        response = BusinessSaveResponse(status='Ok', message=f"Business with id {business_id} updated successfully.")
+        response = SaveResponse(status='Ok', message=f"Business with id {business_id} updated successfully.")
         return Response(content=response.json(), media_type='application/json', status_code=status.HTTP_200_OK)
     except SQLAlchemyError:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=SQLAlchemyErrorMessage)
@@ -119,7 +117,7 @@ async def update_a_business(business_id: int, business_to_update: ResponseBusine
 
 
 # Endpoint for deleting a business
-@router.delete('/businesses/{business_id}/', response_model=BusinessSaveResponse, status_code=status.HTTP_200_OK)
+@router.delete('/businesses/{business_id}/', response_model=SaveResponse, status_code=status.HTTP_200_OK)
 async def delete_a_business(business_id: int):
     try:
         business_to_delete = db.query(Business).filter(Business.id == business_id).first()
@@ -129,7 +127,7 @@ async def delete_a_business(business_id: int):
         
         db.delete(business_to_delete)
         db.commit()
-        response = BusinessSaveResponse(status='Ok', message=f"Business with id {business_id} was successfully deleted")
+        response = SaveResponse(status='Ok', message=f"Business with id {business_id} was successfully deleted")
         return Response(content=response.json(), media_type='application/json', status_code=status.HTTP_200_OK)
     except SQLAlchemyError:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=SQLAlchemyErrorMessage)

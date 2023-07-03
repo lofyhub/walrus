@@ -1,9 +1,9 @@
 from fastapi import UploadFile
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, constr
 from typing import List
 from dataclasses import dataclass
 from enum import Enum
-from pydantic import BaseModel
+from datetime import datetime
 
 
 class OurBaseModel(BaseModel):
@@ -15,7 +15,7 @@ class ImageFile(OurBaseModel):
     content_type: str
     file: UploadFile
 
-class BusinessSaveResponse(OurBaseModel):
+class SaveResponse(OurBaseModel):
     status: str
     message: str
 
@@ -104,7 +104,7 @@ class BusinessPayloadd(OurBaseModel):
     category: str
     user_id: str
     amenities: List[str]
-    creation_date: str
+    created_at: str
 
 class ResponseBusiness(OurBaseModel):
     id: int
@@ -119,15 +119,23 @@ class ResponseBusiness(OurBaseModel):
     opening_hours: List[str]
     amenities: List[str]
     images: List[str]
-    creation_date: str
+    created_at: datetime
 
 class ReviewPayload(OurBaseModel):
     user_id: str
     rating: int
     text: str
-    image: List[str]
+    images: List[str]
     business_id: str
 
+class ReviewResponse(OurBaseModel):
+    id: int
+    rating: int
+    business_id: str
+    user_id: str
+    text: str
+    images: List[str]
+    created_at: datetime
 
 class OkResponse(OurBaseModel):
     status: str
