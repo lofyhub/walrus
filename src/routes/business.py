@@ -7,7 +7,6 @@ from models.models import Business
 from datetime import datetime
 from typing import List
 from sqlalchemy.exc import SQLAlchemyError
-from auth.auth import decode_jwt
 from utils.helpers import upload_image
 
 # Create a database session
@@ -17,16 +16,7 @@ db = SessionLocal()
 router = APIRouter()
 
 # Define the OAuth2 password bearer scheme
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
-
-
-# Utility function to get user from token
-async def get_user_from_token(token: str):
-    user_from_token = decode_jwt(token)
-    if not user_from_token:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired token")
-    return user_from_token
-
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 # Endpoint for saving businesse
 @router.post('/businesses/', response_model=SaveResponse, status_code=status.HTTP_201_CREATED)
@@ -76,7 +66,8 @@ async def save_business(
 @router.get('/businesses/', response_model=List[ResponseBusiness], status_code=status.HTTP_200_OK)
 async def get_businesses(skip: int = 0, limit: int = 100):
     try:
-        all_businesses: List[ResponseBusiness] = db.query(Business).offset(skip).limit(limit).all()
+        # return none deleted businesses
+        all_businesses: List[ResponseBusiness] = db.query(Business).filter(Business.is_deleted == False).offset(skip).limit(limit).all()
         return all_businesses
     except SQLAlchemyError:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=SQLAlchemyErrorMessage)
@@ -125,7 +116,9 @@ async def delete_a_business(business_id: int):
         if business_to_delete is None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Business with id {business_id} was not found")
         
-        db.delete(business_to_delete)
+        # soft delete
+        business_to_delete.is_deleted = True
+
         db.commit()
         response = SaveResponse(status='Ok', message=f"Business with id {business_id} was successfully deleted")
         return Response(content=response.json(), media_type='application/json', status_code=status.HTTP_200_OK)

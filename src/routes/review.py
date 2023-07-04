@@ -7,7 +7,7 @@ from models.models import Review
 from datetime import datetime
 from typing import List
 from sqlalchemy.exc import SQLAlchemyError
-from auth.auth import decode_jwt
+from auth.auth import get_user_from_token
 from utils.helpers import upload_image
 
 # Create a database session
@@ -17,16 +17,7 @@ db = SessionLocal()
 router = APIRouter()
 
 # Define the OAuth2 password bearer scheme
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
-
-
-# Utility function to get user from token
-async def get_user_from_token(token: str):
-    user_from_token = decode_jwt(token)
-    if not user_from_token:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired token")
-    return user_from_token
-
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 # Endpoint for saving review
 @router.post('/reviews/', response_model=SaveResponse, status_code=status.HTTP_201_CREATED)
@@ -61,7 +52,8 @@ async def save_review(
 @router.get('/reviews/', response_model=List[ReviewResponse], status_code=status.HTTP_200_OK)
 async def get_reviews(skip: int = 0, limit: int = 100):
     try:
-        all_reviews: List[ReviewResponse] = db.query(Review).offset(skip).limit(limit).all()
+        # return none deleted users
+        all_reviews: List[ReviewResponse] = db.query(Review).filter(Review.is_deleted == False).offset(skip).limit(limit).all()
         return all_reviews
     except SQLAlchemyError:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=SQLAlchemyErrorMessage)
@@ -98,7 +90,9 @@ async def delete_a_review(review_id: int):
         if review_to_delete is None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Review with id {review_id} was not found")
         
-        db.delete(review_to_delete)
+        # soft delete
+        review_to_delete.is_deleted = True
+
         db.commit()
         response = SaveResponse(status='Ok', message=f"Review with id {review_id} was successfully deleted")
         return Response(content=response.json(), media_type='application/json', status_code=status.HTTP_200_OK)

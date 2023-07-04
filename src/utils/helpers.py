@@ -1,9 +1,9 @@
-from typing import List
 from cloudinary.uploader import upload
 import cloudinary
 from fastapi import HTTPException, status, UploadFile
 from config.config import settings
 import asyncio
+import uuid
 
 cloudinary.config(
     cloud_name=settings.CLOUDINARY_CLOUD_NAME,
@@ -22,3 +22,7 @@ async def upload_image(files:list[UploadFile]):
         return uploaded_paths
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Error uploading images: {e}")
+
+def gen_uuid() -> str:
+    gen_id = str(uuid.uuid4())
+    return gen_id

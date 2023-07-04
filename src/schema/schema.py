@@ -1,5 +1,5 @@
 from fastapi import UploadFile
-from pydantic import BaseModel, Field, constr
+from pydantic import BaseModel, EmailStr
 from typing import List
 from dataclasses import dataclass
 from enum import Enum
@@ -9,6 +9,21 @@ from datetime import datetime
 class OurBaseModel(BaseModel):
     class Config:
         orm_mode = True
+
+
+class UserPayload(OurBaseModel):
+    fullname: str
+    email: EmailStr
+    tel_number: str
+    picture: str
+
+class UserResponse(OurBaseModel):
+    id: str
+    name: str
+    email: EmailStr
+    tel_number: str
+    picture: str
+    created_at: datetime
 
 class ImageFile(OurBaseModel):
     filename: str
@@ -76,10 +91,7 @@ def get_county_str(county: County) -> str:
     return county.value
 
 
-class UserPayload(OurBaseModel):
-    fullname: str
-    email: str
-    picture: str
+
 
 class BusinessPayload(OurBaseModel):
     name: str
@@ -107,7 +119,7 @@ class BusinessPayloadd(OurBaseModel):
     created_at: str
 
 class ResponseBusiness(OurBaseModel):
-    id: int
+    id: str
     name: str
     handle: str
     location: str
@@ -129,7 +141,7 @@ class ReviewPayload(OurBaseModel):
     business_id: str
 
 class ReviewResponse(OurBaseModel):
-    id: int
+    id: str
     rating: int
     business_id: str
     user_id: str

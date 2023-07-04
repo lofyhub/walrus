@@ -51,6 +51,7 @@ The API utilizes the following SQLAlchemy models for data storage and retrieval:
   - `id` (Integer, primary key): The unique identifier of the user.
   - `name` (String, max length 255, required): The name of the user.
   - `email` (String, max length 255, required): The email address of the user.
+  - `tel_number` (String, max length 10, required): The telephone number of the user.
   - `picture` (String, max length 255, required): The URL to the user's picture.
   - `created_at` (DateTime, required): The date and time of user creation.
 
@@ -88,6 +89,79 @@ The API uses these models to manage and retrieve user, business, and review data
 
 
 ## API ENDPOINTS
+
+
+API Documentation - Users Endpoint
+============================
+
+This API documentation provides details about the Users endpoint, which allows you to manage user information.
+
+Endpoint: `/users/`
+
+Methods supported: `POST`, `GET`, `PUT`, `DELETE`
+
+Authentication:
+- This endpoint requires authentication using OAuth2 with a password bearer token. Include the token in the `Authorization` header using the Bearer scheme.
+
+Save User
+----------
+Create a new user.
+
+- Method: `POST`
+- Path: `/users/`
+- Request Body: `UserPayload`
+- Response: `SaveResponse`
+- Success Response Code: 201 - Created
+- Error Response Codes:
+  - 403 - Forbidden: If the email or telephone number is already registered.
+  - 500 - Internal Server Error: If there is a database error.
+
+Retrieve Users
+--------------
+Get a list of users.
+
+- Method: `GET`
+- Path: `/users/`
+- Query Parameters:
+  - `skip` (optional): Number of records to skip (default: 0)
+  - `limit` (optional): Maximum number of records to retrieve (default: 100)
+- Response: List of `UserResponse`
+- Success Response Code: 200 - OK
+- Error Response Code: 500 - Internal Server Error (in case of a database error)
+
+Update User
+-----------
+Update an existing user.
+
+- Method: `PUT`
+- Path: `/users/{user_id}/`
+- Path Parameter:
+  - `user_id`: ID of the user to update
+- Request Body: `UserPayload`
+- Response: `SaveResponse`
+- Success Response Code: 200 - OK
+- Error Response Codes:
+  - 400 - Bad Request: If the user with the specified ID is not found.
+  - 403 - Forbidden: If the email cannot be different from the existing one.
+  - 500 - Internal Server Error: If there is a database error.
+
+Delete User
+-----------
+Delete a user.
+
+- Method: `DELETE`
+- Path: `/users/{user_id}/`
+- Path Parameter:
+  - `user_id`: ID of the user to delete
+- Response: `SaveResponse`
+- Success Response Code: 200 - OK
+- Error Response Codes:
+  - 404 - Not Found: If the user with the specified ID is not found.
+  - 500 - Internal Server Error: If there is a database error.
+
+Please ensure to include the required authentication token in the `Authorization` header for authenticated requests.
+
+
 
 ## Save Business [POST]
 
