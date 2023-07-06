@@ -1,38 +1,11 @@
-from fastapi import UploadFile
-from pydantic import BaseModel, EmailStr
 from typing import List
-from dataclasses import dataclass
+from pydantic import BaseModel
 from enum import Enum
 from datetime import datetime
-
 
 class OurBaseModel(BaseModel):
     class Config:
         orm_mode = True
-
-
-class UserPayload(OurBaseModel):
-    fullname: str
-    email: EmailStr
-    tel_number: str
-    picture: str
-
-class UserResponse(OurBaseModel):
-    id: str
-    name: str
-    email: EmailStr
-    tel_number: str
-    picture: str
-    created_at: datetime
-
-class ImageFile(OurBaseModel):
-    filename: str
-    content_type: str
-    file: UploadFile
-
-class SaveResponse(OurBaseModel):
-    status: str
-    message: str
 
 
 class SQLAlchemyErrorMessage(OurBaseModel):
@@ -87,36 +60,37 @@ class County(Enum):
     Nyamira = 'Nyamira'
     Nairobi = 'Nairobi'
 
+
 def get_county_str(county: County) -> str:
     return county.value
-
-
 
 
 class BusinessPayload(OurBaseModel):
     name: str
     handle: str
-    images: list[str]
+    images: List[str]
     location: County
-    opening_hours: list[str]
+    opening_hours: List[str]
     business_description: str
     telephone_number: str
     category: str
     amenities: List[str]
     user_id: str
 
+
 class BusinessPayloadd(OurBaseModel):
     name: str
     handle: str
-    images: list[str]
+    images: List[str]
     location: County
-    opening_hours: list[str]
+    opening_hours: List[str]
     business_description: str
     telephone_number: str
     category: str
     user_id: str
     amenities: List[str]
     created_at: str
+
 
 class ResponseBusiness(OurBaseModel):
     id: str
@@ -133,22 +107,7 @@ class ResponseBusiness(OurBaseModel):
     images: List[str]
     created_at: datetime
 
-class ReviewPayload(OurBaseModel):
-    user_id: str
-    rating: int
-    text: str
-    images: List[str]
-    business_id: str
 
-class ReviewResponse(OurBaseModel):
-    id: str
-    rating: int
-    business_id: str
-    user_id: str
-    text: str
-    images: List[str]
-    created_at: datetime
-
-class OkResponse(OurBaseModel):
+class SaveResponse(OurBaseModel):
     status: str
-    data: List[ResponseBusiness]
+    message: str

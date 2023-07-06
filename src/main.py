@@ -1,9 +1,10 @@
 from fastapi import FastAPI
 import uvicorn
 from config.config import settings
-from routes.business import business_routes
-from routes.review import reviews_routes
-from routes.user import users_routes
+
+from businesses.router import business_routes
+from reviews.router import reviews_routes
+from users.router import  users_routes
 
 app=FastAPI()
 

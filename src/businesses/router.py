@@ -1,13 +1,13 @@
-from fastapi import status, HTTPException, APIRouter, Response, Form, UploadFile, File
-from typing import Annotated, Dict, Any
+from fastapi import status, HTTPException, APIRouter, Response, Form, UploadFile
+from typing import Annotated
 from fastapi.security import OAuth2PasswordBearer
-from database.database import SessionLocal
-from schema.schema import ResponseBusiness, SaveResponse, SQLAlchemyErrorMessage, OkResponse
-from models.models import Business
+from database import SessionLocal
+from .schemas import ResponseBusiness, SaveResponse, SQLAlchemyErrorMessage 
+from .models import Business
 from datetime import datetime
 from typing import List
 from sqlalchemy.exc import SQLAlchemyError
-from utils.helpers import upload_image
+from utils import upload_image
 
 # Create a database session
 db = SessionLocal()
@@ -69,6 +69,20 @@ async def get_businesses(skip: int = 0, limit: int = 100):
         # return none deleted businesses
         all_businesses: List[ResponseBusiness] = db.query(Business).filter(Business.is_deleted == False).offset(skip).limit(limit).all()
         return all_businesses
+    except SQLAlchemyError:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=SQLAlchemyErrorMessage)
+
+
+# Endpoint for retrieving a single business
+@router.get('/businesses/', response_model=ResponseBusiness, status_code=status.HTTP_200_OK)
+async def get_single_business(business_id: str):
+    try:
+        # return a single business
+        single_business: ResponseBusiness = db.query(Business).filter(Business.id == business_id).first()
+
+        if single_business is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Business with id {business_id}not found")
+        return single_business
     except SQLAlchemyError:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=SQLAlchemyErrorMessage)
 

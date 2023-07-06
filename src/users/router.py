@@ -1,8 +1,8 @@
-from fastapi import status, HTTPException, APIRouter, Response
+from fastapi import status, HTTPException, APIRouter, Response, Query
 from fastapi.security import OAuth2PasswordBearer
-from database.database import SessionLocal
-from schema.schema import  SQLAlchemyErrorMessage, SaveResponse, UserPayload, UserResponse
-from models.models import User
+from database import SessionLocal
+from .schemas import  SQLAlchemyErrorMessage, SaveResponse, UserPayload, UserResponse
+from .models import User
 from datetime import datetime
 from typing import List
 from sqlalchemy.exc import SQLAlchemyError
@@ -34,7 +34,6 @@ async def save_user(user_payload: UserPayload):
             email =  user_payload.email,
             tel_number =  user_payload.tel_number,
             picture =  user_payload.picture,
-            created_at = datetime.now()
         )
 
         db.add(new_user)
@@ -53,6 +52,21 @@ async def get_users(skip: int = 0, limit: int = 100):
         # return only none deleted users
         all_users = db.query(User).filter(User.is_deleted == False).offset(skip).limit(limit).all()
         return all_users
+    except SQLAlchemyError:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=SQLAlchemyErrorMessage)
+
+
+# Endpoint for retrieving a single user
+@router.get('/user/', response_model=UserPayload, status_code=status.HTTP_200_OK)
+async def get_single_user(user_id: str = Query(...,min_length=10)):
+    try:
+        single_user = db.query(User).filter(User.id == user_id, User.is_deleted == False).first()
+        print(user_id)
+        print(single_user)
+        
+        if single_user is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"User with id {user_id} not found")
+        return single_user
     except SQLAlchemyError:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=SQLAlchemyErrorMessage)
 

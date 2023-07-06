@@ -1,14 +1,13 @@
 from fastapi import status, HTTPException, APIRouter, Response, Form, UploadFile
 from typing import Annotated
 from fastapi.security import OAuth2PasswordBearer
-from database.database import SessionLocal
-from schema.schema import  SQLAlchemyErrorMessage, SaveResponse, ReviewResponse
-from models.models import Review
+from database import SessionLocal
+from .schemas import  SQLAlchemyErrorMessage, SaveResponse, ReviewResponse
+from .models import Review
 from datetime import datetime
 from typing import List
 from sqlalchemy.exc import SQLAlchemyError
-from auth.auth import get_user_from_token
-from utils.helpers import upload_image
+from utils import upload_image
 
 # Create a database session
 db = SessionLocal()
@@ -36,7 +35,6 @@ async def save_review(
             rating = rating,
             business_id = business_id,
             user_id = user_id,
-            created_at = datetime.now(),
         )
 
         db.add(new_review)
@@ -55,6 +53,20 @@ async def get_reviews(skip: int = 0, limit: int = 100):
         # return none deleted users
         all_reviews: List[ReviewResponse] = db.query(Review).filter(Review.is_deleted == False).offset(skip).limit(limit).all()
         return all_reviews
+    except SQLAlchemyError:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=SQLAlchemyErrorMessage)
+
+
+# Endpoint for retrieving a single review
+@router.get('/reviews/', response_model=ReviewResponse, status_code=status.HTTP_200_OK)
+async def get_single_reviews(review_id: str):
+    try:
+        # return a single review
+        single_review: ReviewResponse= db.query(Review).filter(Review.id == review_id).first()
+
+        if single_review is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Review with id {review_id} not found")
+        return single_review
     except SQLAlchemyError:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=SQLAlchemyErrorMessage)
 
