@@ -99,7 +99,7 @@ async def update_a_user(user_id: int, user_to_update: UserPayload):
 
 # Endpoint for deleting a review
 @router.delete('/users/{user_id}/', response_model = SaveResponse, status_code=status.HTTP_200_OK)
-async def delete_a_user(user_id: int):
+async def delete_a_user(user_id: str):
     try:
         user_to_delete = db.query(User).filter(User.id == user_id).first()
 
