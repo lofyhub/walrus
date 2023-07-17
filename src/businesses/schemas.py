@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional, Any
 from pydantic import BaseModel
 from enum import Enum
 from datetime import datetime
@@ -7,6 +7,10 @@ class OurBaseModel(BaseModel):
     class Config:
         orm_mode = True
 
+class DefaultResponse(OurBaseModel):
+    status: bool
+    msg: str
+    details: Optional[dict[Any, Any]] = {}
 
 class SQLAlchemyErrorMessage(OurBaseModel):
     detail:str = "An error occurred while processing your request. Please try again later"

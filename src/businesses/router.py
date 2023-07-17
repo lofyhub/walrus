@@ -2,7 +2,7 @@ from fastapi import status, HTTPException, APIRouter, Response, Form, UploadFile
 from typing import Annotated
 from fastapi.security import OAuth2PasswordBearer
 from database import SessionLocal
-from .schemas import ResponseBusiness, SaveResponse, SQLAlchemyErrorMessage 
+from .schemas import ResponseBusiness, SaveResponse, SQLAlchemyErrorMessage
 from .models import Business
 from datetime import datetime
 from typing import List
@@ -34,9 +34,7 @@ async def save_business(
     amenities: Annotated[List[str], Form()]
     ):
     try:
-        print(datetime.now())
         uploaded_image_paths = await upload_image(images)
-        print(datetime.now())
 
         new_business = Business(
                 name =  name,
@@ -78,7 +76,7 @@ async def get_businesses(skip: int = 0, limit: int = 100):
 async def get_single_business(business_id: str):
     try:
         # return a single business
-        single_business: ResponseBusiness = db.query(Business).filter(Business.id == business_id).first()
+        single_business: ResponseBusiness = db.query(Business).filter(Business.id == business_id and Business.is_deleted == False).first()
 
         if single_business is None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Business with id {business_id}not found")
@@ -92,7 +90,7 @@ async def get_single_business(business_id: str):
 @router.put('/businesses/{business_id}/',response_model=SaveResponse, status_code=status.HTTP_200_OK)
 async def update_a_business(business_id: int, business_to_update: ResponseBusiness):
     try:
-        entry_to_update = db.query(Business).filter(Business.id == business_id).first()
+        entry_to_update = db.query(Business).filter(Business.id == business_id and Business.is_deleted == False).first()
 
         if entry_to_update is None:
             raise HTTPException(status_code=400, detail=f"Entry with id {business_id} was not found")
@@ -125,7 +123,7 @@ async def update_a_business(business_id: int, business_to_update: ResponseBusine
 @router.delete('/businesses/{business_id}/', response_model=SaveResponse, status_code=status.HTTP_200_OK)
 async def delete_a_business(business_id: int):
     try:
-        business_to_delete = db.query(Business).filter(Business.id == business_id).first()
+        business_to_delete = db.query(Business).filter(Business.id == business_id and Business.is_deleted == False).first()
 
         if business_to_delete is None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Business with id {business_id} was not found")
