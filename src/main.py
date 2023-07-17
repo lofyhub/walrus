@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 from config.config import settings
 
@@ -7,6 +8,19 @@ from reviews.router import reviews_routes
 from users.router import  users_routes
 
 app=FastAPI()
+
+
+origins = [
+    'http://localhost:3000'
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.include_router(business_routes)
 app.include_router(reviews_routes)
