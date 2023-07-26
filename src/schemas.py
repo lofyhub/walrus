@@ -1,5 +1,5 @@
 from fastapi import UploadFile
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 
 
 class OurBaseModel(BaseModel):
@@ -11,6 +11,11 @@ class ImageFile(OurBaseModel):
     content_type: str
     file: UploadFile
 
+class UserPayload(OurBaseModel):
+    fullname: str
+    email: EmailStr
+    tel_number: str
+    picture: str
 
 
 class SQLAlchemyErrorMessage(OurBaseModel):

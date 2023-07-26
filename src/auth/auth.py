@@ -1,21 +1,20 @@
 import jwt
 from fastapi import HTTPException, status
 from config.config import settings
-from schema.schema import UserPayload
+from users.schemas import UserPayload
 from datetime import datetime, timedelta
 
 JWT_SECRET = settings.JWT_SECRET
 JWT_ALGORITHM = settings.JWT_ALGORITHM
 
 def sign_jwt(user: UserPayload):
-    expiration_time = datetime.utcnow() + timedelta(hours=24)
     payload = {
-        "user_id": user.fullname,
-        "exp": expiration_time
+        "user_id": user.name,
+        "exp": datetime.utcnow() + timedelta(hours=24)
     }
 
     token = jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
-    return token_response(token)
+    return token
 
 def decode_jwt(token: str):
     try:
@@ -23,12 +22,6 @@ def decode_jwt(token: str):
         return decoded_token if decoded_token.get('exp', 0) >= datetime.utcnow() else None
     except jwt.InvalidTokenError:
         return None
-
-def token_response(token: str):
-    return {
-        "access_token": token
-    }
-
 
 #  Utility function to get user from token
 async def get_user_from_token(token: str):

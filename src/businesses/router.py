@@ -53,7 +53,7 @@ async def save_business(
 
         db.add(new_business)
         db.commit()
-        response = SaveResponse(status='Ok', message="Business successfully saved")
+        response = SaveResponse(status=status.HTTP_200_OK, message="Business successfully saved")
         return Response(content=response.json(), media_type='application/json', status_code=status.HTTP_201_CREATED)
     except SQLAlchemyError:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=SQLAlchemyErrorMessage)
@@ -112,7 +112,7 @@ async def update_a_business(business_id: int, business_to_update: ResponseBusine
         entry_to_update.created_at = datetime.now(),
 
         db.commit()
-        response = SaveResponse(status='Ok', message=f"Business with id {business_id} updated successfully.")
+        response = SaveResponse(status=status.HTTP_200_OK, message=f"Business with id {business_id} updated successfully.")
         return Response(content=response.json(), media_type='application/json', status_code=status.HTTP_200_OK)
     except SQLAlchemyError:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=SQLAlchemyErrorMessage)
@@ -132,7 +132,7 @@ async def delete_a_business(business_id: int):
         business_to_delete.is_deleted = True
 
         db.commit()
-        response = SaveResponse(status='Ok', message=f"Business with id {business_id} was successfully deleted")
+        response = SaveResponse(status=status.HTTP_200_OK, message=f"Business with id {business_id} was successfully deleted")
         return Response(content=response.json(), media_type='application/json', status_code=status.HTTP_200_OK)
     except SQLAlchemyError:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=SQLAlchemyErrorMessage)

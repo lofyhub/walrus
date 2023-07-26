@@ -16,6 +16,11 @@ class UserPayload(OurBaseModel):
     tel_number: str
     picture: str
 
+class LoginPayload(OurBaseModel):
+    fullname: str
+    email: EmailStr
+
+
 class UserResponse(OurBaseModel):
     id: str
     name: str

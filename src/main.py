@@ -6,6 +6,7 @@ from config.config import settings
 from businesses.router import business_routes
 from reviews.router import reviews_routes
 from users.router import  users_routes
+from auth.router import auth_routes
 
 app=FastAPI()
 
@@ -25,6 +26,7 @@ app.add_middleware(
 app.include_router(business_routes)
 app.include_router(reviews_routes)
 app.include_router(users_routes)
+app.include_router(auth_routes)
 
 @app.get('/health')
 async def health_check():
