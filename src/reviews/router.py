@@ -1,13 +1,15 @@
-from fastapi import status, HTTPException, APIRouter, Response, Form, UploadFile
-from typing import Annotated
+from fastapi import status, HTTPException, APIRouter, Response, Form, UploadFile, Depends
+from typing import Annotated, Optional
 from fastapi.security import OAuth2PasswordBearer
 from database import SessionLocal
 from .schemas import  SQLAlchemyErrorMessage, SaveResponse, ReviewResponse
 from .models import Review
+from users.models import User
 from datetime import datetime
 from typing import List
 from sqlalchemy.exc import SQLAlchemyError
 from utils import upload_image
+from auth.auth_bearer import JWTBearer
 
 # Create a database session
 db = SessionLocal()
@@ -19,27 +21,31 @@ router = APIRouter()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 # Endpoint for saving review
-@router.post('/reviews/', response_model=SaveResponse, status_code=status.HTTP_201_CREATED)
+@router.post('/reviews/',dependencies=[Depends(JWTBearer())], response_model=SaveResponse, status_code=status.HTTP_201_CREATED)
 async def save_review(
-    images: List[UploadFile],
     text: Annotated[str, Form()],
-    rating: Annotated[int, Form()],
+    rating: Annotated[str, Form()],
     business_id: Annotated[str, Form()],
-    user_id: Annotated[int, Form()],
+    user_id: Annotated[str, Form()],
+    images: Optional[List[UploadFile]] = None,
     ):
     try:
-        uploaded_image_paths = await upload_image(images)
+
+        uploaded_image_paths = []
+        if images:
+            uploaded_image_paths = await upload_image(images)
+        
         new_review = Review(
             images = uploaded_image_paths,
             text = text,
-            rating = rating,
+            rating = int(rating),
             business_id = business_id,
             user_id = user_id,
         )
 
         db.add(new_review)
         db.commit()
-        response = SaveResponse(status='Ok', message="Review successfully saved")
+        response = SaveResponse(status='201', message="Review successfully saved")
         return response
     except SQLAlchemyError:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=SQLAlchemyErrorMessage)
@@ -47,33 +53,71 @@ async def save_review(
 
 
 # Endpoint for retrieving  reviews
-@router.get('/reviews/', response_model=List[ReviewResponse], status_code=status.HTTP_200_OK)
+@router.get('/reviews/', response_model=ReviewResponse, status_code=status.HTTP_200_OK)
 async def get_reviews(skip: int = 0, limit: int = 100):
     try:
         # return none deleted users
-        all_reviews: List[ReviewResponse] = db.query(Review).filter(Review.is_deleted == False).offset(skip).limit(limit).all()
-        return all_reviews
+        all_reviews: List[ReviewResponse] = db.query(Review).join(User).filter(Review.is_deleted == False).offset(skip).limit(limit).all()
+        serialized_reviews = []
+        
+        for review in all_reviews:
+            serialized_review = {
+                'id': review.id,
+                'user_id': review.user_id,
+                'business_id': review.business_id,
+                'rating': review.rating,
+                'text': review.text,
+                'images': review.images, 
+                'user':{
+                    'full_name': review.user.name,
+                    'photo': review.user.picture,
+                },
+                'created_at': review.created_at,
+            }
+            serialized_reviews.append(serialized_review)
+        response = ReviewResponse(status= str(status.HTTP_200_OK), data= serialized_reviews, reviews= len(serialized_reviews))
+        return response
     except SQLAlchemyError:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=SQLAlchemyErrorMessage)
 
 
 # Endpoint for retrieving a single review
-@router.get('/reviews/', response_model=ReviewResponse, status_code=status.HTTP_200_OK)
-async def get_single_reviews(review_id: str):
+@router.get('/reviews/{business_id}', response_model=ReviewResponse, status_code=status.HTTP_200_OK)
+async def get_single_reviews(business_id: str):
     try:
         # return a single review
-        single_review: ReviewResponse= db.query(Review).filter(Review.id == review_id).first()
+        business_reviews: ReviewResponse= db.query(Review).join(User).filter(Review.business_id == business_id).all()
 
-        if single_review is None:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Review with id {review_id} not found")
-        return single_review
+        if business_reviews is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Business reviews for {business_id} not found")
+        
+        serialized_reviews = []
+        
+        for review in business_reviews:
+            serialized_review = {
+                'id': review.id,
+                'user_id': review.user_id,
+                'business_id': review.business_id,
+                'rating': review.rating,
+                'text': review.text,
+                'images': review.images,
+                'user':{
+                    'full_name': review.user.name,
+                    'photo': review.user.picture,
+                },
+                'created_at': review.created_at,
+            }
+            serialized_reviews.append(serialized_review)
+        
+        response = ReviewResponse(status= str(status.HTTP_200_OK), data= serialized_reviews, reviews= len(serialized_reviews))
+        return response
     except SQLAlchemyError:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=SQLAlchemyErrorMessage)
 
 
 
 # Endpoint for updating a review
-@router.put('/reviews/{review_id}/',response_model=SaveResponse, status_code=status.HTTP_200_OK)
+@router.put('/reviews/{review_id}/', dependencies=[Depends(JWTBearer())], response_model=SaveResponse, status_code=status.HTTP_200_OK)
 async def update_a_review(review_id: int, review_to_update: ReviewResponse):
     try:
         entry_to_update = db.query(Review).filter(Review.id == review_id).first()
@@ -94,7 +138,7 @@ async def update_a_review(review_id: int, review_to_update: ReviewResponse):
 
 
 # Endpoint for deleting a review
-@router.delete('/reviews/{review_id}/', response_model = SaveResponse, status_code=status.HTTP_200_OK)
+@router.delete('/reviews/{review_id}/', dependencies=[Depends(JWTBearer())], response_model = SaveResponse, status_code=status.HTTP_200_OK)
 async def delete_a_review(review_id: int):
     try:
         review_to_delete = db.query(Review).filter(Review.id == review_id).first()

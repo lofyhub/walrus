@@ -18,14 +18,23 @@ class ReviewPayload(OurBaseModel):
     images: List[str]
     business_id: str
 
-class ReviewResponse(OurBaseModel):
+class User(OurBaseModel):
+      full_name: str
+      photo: str
+class Reviews(OurBaseModel):
     id: str
     rating: int
     business_id: str
     user_id: str
     text: str
     images: List[str]
+    user: User
     created_at: datetime
+class ReviewResponse(OurBaseModel):
+    status: str
+    data: List[Reviews]
+    reviews: int
+
 
 class SaveResponse(OurBaseModel):
     status: str

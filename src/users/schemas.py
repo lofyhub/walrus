@@ -25,10 +25,11 @@ class UserResponse(OurBaseModel):
     id: str
     name: str
     email: EmailStr
-    tel_number: str
     picture: str
     created_at: datetime
 
 class SaveResponse(OurBaseModel):
     status: str
     message: str
+    access_token: str
+    user_name: str

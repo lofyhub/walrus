@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, DateTime
+from sqlalchemy import Column, String, Boolean, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
 from database import Base
 from sqlalchemy.ext.mutable import MutableList
@@ -8,7 +8,7 @@ from datetime import datetime
 
 class Business(Base):
     __tablename__ = 'businesses'
-    id = Column(String, primary_key=True, default=gen_uuid())
+    id = Column(String, primary_key=True, default=gen_uuid)
     name = Column(String(255), nullable=False)
     handle = Column(String(255), nullable=False)
     images = Column(MutableList.as_mutable(PickleType),default=[], nullable=False)
@@ -19,7 +19,7 @@ class Business(Base):
     telephone_number = Column(String(255), nullable=False)
     category = Column(String(255), nullable=False)
     amenities = Column(MutableList.as_mutable(PickleType),default=[], nullable=False)
-    user_id= Column(Integer, ForeignKey('users.id'), nullable=False)
+    user_id= Column(String, ForeignKey('users.id'), nullable=False)
     is_deleted = Column(Boolean, nullable=False, default=False)
     created_at = Column(DateTime, nullable=False, default=datetime.now())
     

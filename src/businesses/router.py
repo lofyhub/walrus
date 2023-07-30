@@ -1,4 +1,4 @@
-from fastapi import status, HTTPException, APIRouter, Response, Form, UploadFile
+from fastapi import status, HTTPException, APIRouter, Response, Form, UploadFile, Depends
 from typing import Annotated
 from fastapi.security import OAuth2PasswordBearer
 from database import SessionLocal
@@ -8,7 +8,7 @@ from datetime import datetime
 from typing import List
 from sqlalchemy.exc import SQLAlchemyError
 from utils import upload_image
-
+from auth.auth_bearer import JWTBearer
 # Create a database session
 db = SessionLocal()
 
@@ -19,7 +19,7 @@ router = APIRouter()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 # Endpoint for saving businesse
-@router.post('/businesses/', response_model=SaveResponse, status_code=status.HTTP_201_CREATED)
+@router.post('/businesses/',dependencies=[Depends(JWTBearer())],  response_model=SaveResponse, status_code=status.HTTP_201_CREATED)
 async def save_business(
     images: List[UploadFile],
     name: Annotated[str, Form()],
@@ -30,7 +30,7 @@ async def save_business(
     business_description: Annotated[str, Form()],
     telephone_number: Annotated[str, Form()],
     category: Annotated[str, Form()],
-    user_id: Annotated[int, Form()],
+    user_id: Annotated[str, Form()],
     amenities: Annotated[List[str], Form()]
     ):
     try:
@@ -53,7 +53,7 @@ async def save_business(
 
         db.add(new_business)
         db.commit()
-        response = SaveResponse(status=status.HTTP_200_OK, message="Business successfully saved")
+        response = SaveResponse(status=status.HTTP_201_CREATED, message="Business successfully saved")
         return Response(content=response.json(), media_type='application/json', status_code=status.HTTP_201_CREATED)
     except SQLAlchemyError:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=SQLAlchemyErrorMessage)
@@ -72,7 +72,7 @@ async def get_businesses(skip: int = 0, limit: int = 100):
 
 
 # Endpoint for retrieving a single business
-@router.get('/businesses/', response_model=ResponseBusiness, status_code=status.HTTP_200_OK)
+@router.get('/businesses/{business_id}', response_model=ResponseBusiness, status_code=status.HTTP_200_OK)
 async def get_single_business(business_id: str):
     try:
         # return a single business
@@ -87,7 +87,7 @@ async def get_single_business(business_id: str):
 
 
 # Endpoint for updating a business
-@router.put('/businesses/{business_id}/',response_model=SaveResponse, status_code=status.HTTP_200_OK)
+@router.put('/businesses/{business_id}/',dependencies=[Depends(JWTBearer())], response_model=SaveResponse, status_code=status.HTTP_200_OK)
 async def update_a_business(business_id: int, business_to_update: ResponseBusiness):
     try:
         entry_to_update = db.query(Business).filter(Business.id == business_id and Business.is_deleted == False).first()
@@ -120,7 +120,7 @@ async def update_a_business(business_id: int, business_to_update: ResponseBusine
 
 
 # Endpoint for deleting a business
-@router.delete('/businesses/{business_id}/', response_model=SaveResponse, status_code=status.HTTP_200_OK)
+@router.delete('/businesses/{business_id}/', dependencies=[Depends(JWTBearer())],  response_model=SaveResponse, status_code=status.HTTP_200_OK)
 async def delete_a_business(business_id: int):
     try:
         business_to_delete = db.query(Business).filter(Business.id == business_id and Business.is_deleted == False).first()

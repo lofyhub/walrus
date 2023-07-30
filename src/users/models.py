@@ -13,4 +13,5 @@ class User(Base):
     tel_number = Column(String(10), nullable=False)
     is_deleted = Column(Boolean, nullable=False, default=False)
     created_at = Column(DateTime, nullable=False, default=datetime.now())
+    reviews = relationship("Review", back_populates="user")
     businesses = relationship("Business", back_populates="user")

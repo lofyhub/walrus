@@ -102,9 +102,8 @@ class ResponseBusiness(OurBaseModel):
     handle: str
     location: str
     verified: bool
-    telephone_number: str
     category: str
-    user_id: int
+    user_id: str
     business_description: str
     opening_hours: List[str]
     amenities: List[str]

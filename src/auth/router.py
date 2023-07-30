@@ -25,7 +25,7 @@ async def login_user(login_payload: LoginPayload):
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=f"Email {login_payload.email} not registered")
         
         if check_user.name != login_payload.fullname:
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=f"Incorrect credential")
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=f"Incorrect credentials")
         
         access_token = sign_jwt(check_user)
         response = SuccessResponse(status=status.HTTP_200_OK, access_token=access_token , message="Login successfull")

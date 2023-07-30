@@ -1,4 +1,4 @@
-from fastapi import status, HTTPException, APIRouter, Response, Query
+from fastapi import status, HTTPException, APIRouter, Response, Query, Depends
 from fastapi.security import OAuth2PasswordBearer
 from database import SessionLocal
 from .schemas import  SQLAlchemyErrorMessage, SaveResponse, UserPayload, UserResponse
@@ -6,6 +6,8 @@ from .models import User
 from datetime import datetime
 from typing import List
 from sqlalchemy.exc import SQLAlchemyError
+from auth.auth_bearer import JWTBearer
+from auth.auth import sign_jwt
 
 # Create a database session
 db = SessionLocal()
@@ -38,15 +40,16 @@ async def save_user(user_payload: UserPayload):
 
         db.add(new_user)
         db.commit()
-        response = SaveResponse(status='Ok', message="User successfully saved")
+        access_token = sign_jwt(new_user)
+        response = SaveResponse(status= str(status.HTTP_201_CREATED), message="User successfully saved", access_token=access_token, user_name=new_user.name)
         return response
     except SQLAlchemyError:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=SQLAlchemyErrorMessage)
 
 
 
-# Endpoint for retrieving  reviews
-@router.get('/users/', response_model=List[UserResponse], status_code=status.HTTP_200_OK)
+# Endpoint for retrieving users
+@router.get('/users/', dependencies=[Depends(JWTBearer())],  response_model=List[UserResponse], status_code=status.HTTP_200_OK)
 async def get_users(skip: int = 0, limit: int = 100):
     try:
         # return only none deleted users
@@ -57,7 +60,7 @@ async def get_users(skip: int = 0, limit: int = 100):
 
 
 # Endpoint for retrieving a single user
-@router.get('/user/', response_model=UserPayload, status_code=status.HTTP_200_OK)
+@router.get('/user/',dependencies=[Depends(JWTBearer())], response_model=UserPayload, status_code=status.HTTP_200_OK)
 async def get_single_user(user_id: str = Query(...,min_length=10)):
     try:
         single_user = db.query(User).filter(User.id == user_id, User.is_deleted == False).first()
@@ -73,7 +76,7 @@ async def get_single_user(user_id: str = Query(...,min_length=10)):
 
 
 # Endpoint for updating a review
-@router.put('/users/{user_id}/',response_model=SaveResponse, status_code=status.HTTP_200_OK)
+@router.put('/users/{user_id}/', dependencies=[Depends(JWTBearer())],  response_model=SaveResponse, status_code=status.HTTP_200_OK)
 async def update_a_user(user_id: int, user_to_update: UserPayload):
     try:
         entry_to_update = db.query(User).filter(User.id == user_id).first()
@@ -98,7 +101,7 @@ async def update_a_user(user_id: int, user_to_update: UserPayload):
 
 
 # Endpoint for deleting a review
-@router.delete('/users/{user_id}/', response_model = SaveResponse, status_code=status.HTTP_200_OK)
+@router.delete('/users/{user_id}/', dependencies=[Depends(JWTBearer())],  response_model = SaveResponse, status_code=status.HTTP_200_OK)
 async def delete_a_user(user_id: str):
     try:
         user_to_delete = db.query(User).filter(User.id == user_id).first()
