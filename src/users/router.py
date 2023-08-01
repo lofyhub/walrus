@@ -41,7 +41,7 @@ async def save_user(user_payload: UserPayload):
         db.add(new_user)
         db.commit()
         access_token = sign_jwt(new_user)
-        response = SaveResponse(status= str(status.HTTP_201_CREATED), message="User successfully saved", access_token=access_token, user_name=new_user.name)
+        response = SaveResponse(status= str(status.HTTP_201_CREATED), message="User successfully saved", access_token=access_token, user=new_user)
         return response
     except SQLAlchemyError:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=SQLAlchemyErrorMessage)

@@ -28,8 +28,13 @@ class UserResponse(OurBaseModel):
     picture: str
     created_at: datetime
 
+class User(OurBaseModel):
+    name: str
+    email: str
+    tel_number: str
+    picture: str
 class SaveResponse(OurBaseModel):
     status: str
     message: str
     access_token: str
-    user_name: str
+    user_name: User
