@@ -29,6 +29,7 @@ class UserResponse(OurBaseModel):
     created_at: datetime
 
 class User(OurBaseModel):
+    id: str
     name: str
     email: str
     tel_number: str
@@ -37,4 +38,4 @@ class SaveResponse(OurBaseModel):
     status: str
     message: str
     access_token: str
-    user_name: User
+    user: User

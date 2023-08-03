@@ -325,4 +325,6 @@ Please ensure that your contributions adhere to the [Code of Conduct](CONTRIBUTI
 
 ## License
 
-This project is licensed under the [MIT License](LICENSE). You are free to use, modify, and distribute this software for personal or commercial purposes. Please see the [LICENSE](LICENSE) file for more details.
+This project is licensed under the [GNU AFFERO GENERAL PUBLIC LICENSE 3](./LICENSE)
+
+Please see the [LICENSE](LICENSE) file for more details.
