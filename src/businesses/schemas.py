@@ -101,6 +101,8 @@ class ResponseBusiness(OurBaseModel):
     name: str
     handle: str
     location: str
+    town: str
+    county: str
     verified: bool
     category: str
     user_id: str

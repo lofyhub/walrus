@@ -1,11 +1,11 @@
 from fastapi import status, HTTPException, APIRouter, Response, Query, Depends
 from fastapi.security import OAuth2PasswordBearer
 from database import SessionLocal
-from .schemas import  SQLAlchemyErrorMessage, SaveResponse, UserPayload, UserResponse
+from .schemas import  SQLAlchemyErrorMessage, SaveResponse, UserPayload, UserResponse, UserData, SaveUser, GetUser
 from .models import User
 from datetime import datetime
 from typing import List
-from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 from auth.auth_bearer import JWTBearer
 from auth.auth import sign_jwt
 
@@ -19,6 +19,7 @@ router = APIRouter()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 # Endpoint for saving review
+
 @router.post('/users/', response_model=SaveResponse, status_code=status.HTTP_201_CREATED)
 async def save_user(user_payload: UserPayload):
     try:
@@ -29,32 +30,59 @@ async def save_user(user_payload: UserPayload):
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=f"Email {user_payload.email} already registered")
         
         if check_tel_number is not None:
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=f"Tel number already registered")
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=f"Tel number already registered") 
         
         new_user = User(
-            name = user_payload.fullname,
-            email =  user_payload.email,
-            tel_number =  user_payload.tel_number,
-            picture =  user_payload.picture,
+            name=user_payload.fullname,
+            email=user_payload.email,
+            picture=user_payload.picture,
+            tel_number=user_payload.tel_number,
         )
 
         db.add(new_user)
         db.commit()
+        db.refresh(new_user)
+
         access_token = sign_jwt(new_user)
-        response = SaveResponse(status= str(status.HTTP_201_CREATED), message="User successfully saved", access_token=access_token, user=new_user)
+
+        user_data = UserData(
+            id=new_user.id,
+            name=new_user.name,
+            email=new_user.email,
+            tel_number=new_user.tel_number,
+            picture=new_user.picture,
+            access_token=access_token
+        )
+
+        response = SaveResponse(
+            status=str(status.HTTP_201_CREATED),
+            message="User successfully saved",
+            user=user_data,
+        )
+
         return response
-    except SQLAlchemyError:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=SQLAlchemyErrorMessage)
+    except IntegrityError as e:
+        if "UNIQUE constraint failed: users.id" in str(e):
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to save user: Duplicate ID detected")
+        else:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to save user")
+    except SQLAlchemyError as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Failed to save user:{e}")
 
 
 
 # Endpoint for retrieving users
-@router.get('/users/', dependencies=[Depends(JWTBearer())],  response_model=List[UserResponse], status_code=status.HTTP_200_OK)
+@router.get('/users/', response_model=GetUser, status_code=status.HTTP_200_OK) 
 async def get_users(skip: int = 0, limit: int = 100):
     try:
         # return only none deleted users
         all_users = db.query(User).filter(User.is_deleted == False).offset(skip).limit(limit).all()
-        return all_users
+        users = GetUser(
+            status=str(status.HTTP_200_OK),
+            data= all_users,
+            users= len(all_users),
+        )
+        return users
     except SQLAlchemyError:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=SQLAlchemyErrorMessage)
 
@@ -64,8 +92,6 @@ async def get_users(skip: int = 0, limit: int = 100):
 async def get_single_user(user_id: str = Query(...,min_length=10)):
     try:
         single_user = db.query(User).filter(User.id == user_id, User.is_deleted == False).first()
-        print(user_id)
-        print(single_user)
         
         if single_user is None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"User with id {user_id} not found")
