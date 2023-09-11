@@ -24,5 +24,5 @@ async def upload_image(files:list[UploadFile]):
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Error uploading images: {e}")
 
 def gen_uuid() -> str:
-    generated_id = str(uuid.uuid4())
-    return generated_id
+    generated_id = uuid.uuid4()
+    return generated_id.hex

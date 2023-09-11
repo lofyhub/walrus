@@ -6,7 +6,7 @@ from datetime import datetime
 
 class User(Base):
     __tablename__ = 'users'
-    id = Column(String, primary_key=True, default=gen_uuid())
+    id = Column(String(255), primary_key=True, default=gen_uuid)
     name = Column(String(255), nullable=False)
     email = Column(String(255), nullable=False)
     picture = Column(String(255), nullable=False)

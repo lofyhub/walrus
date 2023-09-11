@@ -57,9 +57,9 @@ async def save_review(
 async def get_reviews(skip: int = 0, limit: int = 100):
     try:
         # return none deleted users
-        all_reviews: List[ReviewResponse] = db.query(Review).join(User).filter(Review.is_deleted == False).offset(skip).limit(limit).all()
+        all_reviews = db.query(Review).join(User).filter(Review.is_deleted == False).offset(skip).limit(limit).all()
         serialized_reviews = []
-        
+        print(all_reviews)
         for review in all_reviews:
             serialized_review = {
                 'id': review.id,
