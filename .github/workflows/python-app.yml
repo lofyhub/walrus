@@ -1,13 +1,12 @@
-# This workflow will install Python dependencies, run tests and lint with a single version of Python
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
-
 name: Python application
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
   pull_request:
-    branches: [ "main" ]
+    branches:
+      - main
 
 permissions:
   contents: read
@@ -30,10 +29,24 @@ jobs:
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Lint with flake8
       run: |
-        # stop the build if there are Python syntax errors or undefined names
+        # Stop the build if there are Python syntax errors or undefined names
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+        # Exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
       run: |
         pytest
+    - name: Set secret environment variables
+      env:
+        PORT: ${{ secrets.PORT }}
+        APP_NAME: ${{ secrets.APP_NAME }}
+        CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
+        CLOUDINARY_API_KEY: ${{ secrets.CLOUDINARY_API_KEY }}
+        CLOUDINARY_CLOUD_NAME: ${{ secrets.CLOUDINARY_CLOUD_NAME }}
+        CLOUDINARY_APP_NAME: ${{ secrets.CLOUDINARY_APP_NAME }}
+        JWT_SECRET: ${{ secrets.JWT_SECRET }}
+        JWT_ALGORITHM: ${{ secrets.JWT_ALGORITHM }}
+        MySQL_DATABASE_URL: ${{ secrets.MySQL_DATABASE_URL }}
+      run: |
+        # These environment variables are now set and can be accessed by your Python script
+        python src/main.py
