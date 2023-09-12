@@ -9,6 +9,7 @@ from typing import List
 from sqlalchemy.exc import SQLAlchemyError
 from utils import upload_image
 from auth.auth_bearer import JWTBearer
+
 # Create a database session
 db = SessionLocal()
 

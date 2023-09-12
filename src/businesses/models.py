@@ -8,7 +8,7 @@ from datetime import datetime
 
 class Business(Base):
     __tablename__ = 'businesses'
-    id = Column(String(255), primary_key=True, default=gen_uuid)
+    id = Column(String(36), primary_key=True, default=gen_uuid)
     name = Column(String(255), nullable=False)
     handle = Column(String(255), nullable=False)
     images = Column(MutableList.as_mutable(PickleType),default=[], nullable=False)
@@ -21,7 +21,7 @@ class Business(Base):
     telephone_number = Column(String(255), nullable=False)
     category = Column(String(255), nullable=False)
     amenities = Column(MutableList.as_mutable(PickleType),default=[], nullable=False)
-    user_id= Column(String(255), ForeignKey('users.id'), nullable=False)
+    user_id= Column(String(36), ForeignKey('users.id'), nullable=False)
     is_deleted = Column(Boolean, nullable=False, default=False)
     created_at = Column(DateTime, nullable=False, default=datetime.now())
     

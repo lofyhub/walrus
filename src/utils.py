@@ -1,7 +1,7 @@
 from cloudinary.uploader import upload
 import cloudinary
 from fastapi import HTTPException, status, UploadFile
-from config.config import settings
+from config import settings
 import asyncio
 import uuid
 

@@ -4,7 +4,6 @@ from database import SessionLocal
 from .schemas import  SQLAlchemyErrorMessage, SaveResponse, UserPayload, UserResponse, UserData, SaveUser, GetUser
 from .models import User
 from datetime import datetime
-from typing import List
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 from auth.auth_bearer import JWTBearer
 from auth.auth import sign_jwt
