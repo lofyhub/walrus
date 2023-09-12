@@ -1,11 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
-from config.config import settings
-
+import config
 from businesses.router import business_routes
 from reviews.router import reviews_routes
-from users.router import  users_routes
+from users.router import users_routes
 from auth.router import auth_routes
 
 app=FastAPI()
@@ -28,15 +27,17 @@ app.include_router(reviews_routes)
 app.include_router(users_routes)
 app.include_router(auth_routes)
 
+app_config = config
+
 @app.get('/health')
 async def health_check():
     return {
-        'app_name': settings.APP_NAME,
+        'app_name': app_config.settings.APP_NAME,
         'status':'ok 👍 '
         }
 
 if __name__ == "__main__":
-    port = int(settings.PORT)
+    port = int(app_config.settings.PORT)
 
     app_module = "main:app"
     uvicorn.run(app_module, host="0.0.0.0", port=port, reload=True)

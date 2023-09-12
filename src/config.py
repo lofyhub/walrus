@@ -1,4 +1,4 @@
-from pydantic import BaseSettings
+from pydantic_settings import BaseSettings
 from dotenv import load_dotenv
 from functools import lru_cache
 
@@ -10,8 +10,10 @@ class Settings(BaseSettings):
     CLOUDINARY_CLOUD_NAME: str
     CLOUDINARY_API_SECRET: str
     CLOUDINARY_API_KEY: str
+    CLOUDINARY_APP_NAME: str
     JWT_SECRET:str
     JWT_ALGORITHM:str
+    MySQL_DATABASE_URL: str
 
     class Config:
         env_file = ".env"

@@ -6,7 +6,7 @@ from datetime import datetime
 
 class User(Base):
     __tablename__ = 'users'
-    id = Column(String(255), primary_key=True, default=gen_uuid)
+    id = Column(String(36), primary_key=True, default=gen_uuid)
     name = Column(String(255), nullable=False)
     email = Column(String(255), nullable=False)
     picture = Column(String(255), nullable=False)
@@ -14,4 +14,4 @@ class User(Base):
     is_deleted = Column(Boolean, nullable=False, default=False)
     created_at = Column(DateTime, nullable=False, default=datetime.now())
     reviews = relationship("Review", back_populates="user")
-    businesses = relationship("Business", back_populates="user")
+    businesses = relationship("Business", back_populates="user") 
