@@ -1,11 +1,10 @@
 from fastapi import status, HTTPException, APIRouter, Response, Form, UploadFile, Depends
-from typing import Annotated
+from typing import Annotated, List
 from fastapi.security import OAuth2PasswordBearer
 from database import SessionLocal
 from .schemas import ResponseBusiness, SaveResponse, SQLAlchemyErrorMessage
 from .models import Business
 from datetime import datetime
-from typing import List
 from sqlalchemy.exc import SQLAlchemyError
 from utils import upload_image
 from auth.auth_bearer import JWTBearer
