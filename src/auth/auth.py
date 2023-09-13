@@ -1,6 +1,6 @@
 import jwt
 from fastapi import HTTPException, status
-from config.config import settings
+from config import settings
 from users.schemas import UserPayload
 from datetime import datetime, timedelta, timezone
 

@@ -1,14 +1,14 @@
 from fastapi import status, HTTPException, APIRouter, Response, Form, UploadFile, Depends
-from typing import Annotated
+from typing import Annotated, List
 from fastapi.security import OAuth2PasswordBearer
 from database import SessionLocal
 from .schemas import ResponseBusiness, SaveResponse, SQLAlchemyErrorMessage
 from .models import Business
 from datetime import datetime
-from typing import List
 from sqlalchemy.exc import SQLAlchemyError
 from utils import upload_image
 from auth.auth_bearer import JWTBearer
+
 # Create a database session
 db = SessionLocal()
 
@@ -25,6 +25,8 @@ async def save_business(
     name: Annotated[str, Form()],
     handle: Annotated[str, Form()],
     location: Annotated[str, Form()],
+    county: Annotated[str, Form()],
+    town: Annotated[str, Form()],
     opening: Annotated[str, Form()],
     closing: Annotated[str, Form()],
     business_description: Annotated[str, Form()],
@@ -35,12 +37,15 @@ async def save_business(
     ):
     try:
         uploaded_image_paths = await upload_image(images)
+        print(uploaded_image_paths)
 
         new_business = Business(
                 name =  name,
                 handle = handle,
                 images = uploaded_image_paths,
                 location = location,
+                county = county,
+                town = town,
                 opening_hours = [opening, closing],
                 business_description = business_description,
                 telephone_number = telephone_number,

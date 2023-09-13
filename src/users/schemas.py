@@ -16,6 +16,13 @@ class UserPayload(OurBaseModel):
     tel_number: str
     picture: str
 
+class SaveUser(OurBaseModel):
+    name: str
+    email: EmailStr
+    picture: str
+    tel_number: str
+
+
 class LoginPayload(OurBaseModel):
     fullname: str
     email: EmailStr
@@ -28,13 +35,19 @@ class UserResponse(OurBaseModel):
     picture: str
     created_at: datetime
 
-class User(OurBaseModel):
+class GetUser(OurBaseModel):
+    status: str
+    data: list[UserResponse]
+    users: int
+
+class UserData(OurBaseModel):
+    id: str
     name: str
     email: str
     tel_number: str
     picture: str
+    access_token: str
 class SaveResponse(OurBaseModel):
     status: str
     message: str
-    access_token: str
-    user_name: User
+    user: UserData
