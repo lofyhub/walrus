@@ -76,10 +76,25 @@ async def get_users(skip: int = 0, limit: int = 100):
     try:
         # return only none deleted users
         all_users = db.query(User).filter(User.is_deleted == False).offset(skip).limit(limit).all()
+        print(all_users)
+        # Convert User objects to UserResponse objects
+        user_responses = [
+            UserResponse(
+                id=user.id,
+                name=user.name,
+                email=user.email,
+                picture=user.picture,
+                is_deleted=user.is_deleted,
+                tel_number=user.tel_number,
+                created_at=user.created_at,
+            )
+            for user in all_users
+        ]
+        
         users = GetUser(
             status=str(status.HTTP_200_OK),
-            data= all_users,
-            users= len(all_users),
+            data= user_responses,
+            users= len(user_responses), 
         )
         return users
     except SQLAlchemyError:

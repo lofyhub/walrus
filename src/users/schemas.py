@@ -33,6 +33,8 @@ class UserResponse(OurBaseModel):
     name: str
     email: EmailStr
     picture: str
+    is_deleted: bool
+    tel_number: str
     created_at: datetime
 
 class GetUser(OurBaseModel):
