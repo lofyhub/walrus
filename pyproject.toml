@@ -6,11 +6,10 @@ authors = ["John Philip <developerphilo@gmail.com>"]
 license = "GNU"
 readme = "README.md"
 
-[tool.poe.tasks]
+[tool.poetry.scripts]
 dev = "python3 src/main.py"
 con_db = "python3 src/create_db.py"
 test = "pytest"
-
 
 [tool.poetry.dependencies]
 python = "^3.11"
@@ -33,7 +32,7 @@ python-multipart = "^0.0.6"
 pymysql = "^1.1.0"
 locust = "^2.16.1"
 
-[tool.poetry.dev.dependencies]
+[tool.poetry.dev-dependencies]
 fastapi = "^0.103.1"
 poethepoet = "^0.22.1"
 
