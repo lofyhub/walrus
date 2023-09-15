@@ -33,7 +33,7 @@ python-multipart = "^0.0.6"
 pymysql = "^1.1.0"
 locust = "^2.16.1"
 
-[tool.poetry.group.dev.dependencies]
+[tool.poetry.dev.dependencies]
 fastapi = "^0.103.1"
 poethepoet = "^0.22.1"
 
