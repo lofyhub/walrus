@@ -160,4 +160,35 @@ cython_debug/
 #.idea/
 
 # database file
-kikao_database.db
+# Python bytecode
+__pycache__/
+
+# Poetry cache and virtual environment
+__pypackages__/
+.pytest_cache/
+.poetry/
+*.egg-info/
+
+# Editor/IDE files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Dependency management
+poetry.lock
+
+# Compiled Python files
+*.pyc
+*.pyo
+*.pyd
+
+# Environment and local settings (modify as needed)
+.env
+
+# Logs
+logs/
+
+# Temporary files
+*.swp
+.DS_Store
