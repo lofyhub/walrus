@@ -175,9 +175,6 @@ __pypackages__/
 *.sublime-project
 *.sublime-workspace
 
-# Dependency management
-poetry.lock
-
 # Compiled Python files
 *.pyc
 *.pyo
