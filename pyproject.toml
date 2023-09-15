@@ -6,8 +6,9 @@ authors = ["John Philip <developerphilo@gmail.com>"]
 license = "GNU"
 readme = "README.md"
 
-[tool.poetry.scripts]
-start = "python src/main.py"
+[tool.poe.tasks]
+dev = "python3 src/main.py"
+test = "pytest"
 
 
 [tool.poetry.dependencies]
