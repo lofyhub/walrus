@@ -6,7 +6,7 @@ authors = ["John Philip <developerphilo@gmail.com>"]
 license = "GNU"
 readme = "README.md"
 
-[tool.poetry.scripts]
+[tool.poe.tasks]
 dev = "python3 src/main.py"
 con_db = "python3 src/create_db.py"
 test = "pytest"

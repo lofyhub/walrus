@@ -76,7 +76,6 @@ async def get_users(skip: int = 0, limit: int = 100):
     try:
         # return only none deleted users
         all_users = db.query(User).filter(User.is_deleted == False).offset(skip).limit(limit).all()
-        print(all_users)
         # Convert User objects to UserResponse objects
         user_responses = [
             UserResponse(
