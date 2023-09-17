@@ -24,21 +24,22 @@ cd walrus
 Install the dependencies:
 
 ```shell
-pip install -r requirements.txt
+poetry install
 ```
 
 ## Set up the database:
 Configure your database connection in the database/database.py file.
 Run the migrations to create the necessary tables:
+
 ```shell
-python src/create_db.py
+poe dev
 ```
 To run the project, execute the following command:
 
 ```shell
-python src/main.py
+poe con_db
 ```
-This will start the FastAPI server, and you can access the API endpoints through http://localhost:8000.
+This will start the FastAPI server, and you can access the API endpoints through [http://localhost:8000](http://localhost:8000).
 
 
 ## API Models
