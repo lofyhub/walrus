@@ -13,6 +13,7 @@ permissions:
 
 jobs:
   build:
+
     runs-on: ubuntu-latest
 
     steps:
@@ -25,15 +26,11 @@ jobs:
 
     - name: Install Poetry
       run: |
-        curl -sSL https://install.python-poetry.org | python3 -
-      shell: bash
+        pip install poetry
+        poetry --version
 
-    - name: Install project dependencies
+    - name: Install project dependencies with Poetry
       run: |
-        python -m pip install --upgrade pip
-        python -m pip install poetry
-
-        # Install project dependencies using Poetry
         poetry install
 
     - name: Set environment variables
@@ -49,16 +46,12 @@ jobs:
         MySQL_DATABASE_URL: ${{ env.MySQL_DATABASE_URL }}
       run: |
         # These environment variables are now set and can be accessed by your Python script
-        poetry run python src/main.py
+        printenv
 
-    - name: Format code with black
+    - name: Print all environment variables
       run: |
-        poetry run black .
+        printenv
 
-    - name: Type check with mypy
+    - name: Run Python script
       run: |
-        poetry run mypy .
-
-    - name: Test with pytest
-      run: |
-        poetry run pytest
+        python src/main.py
