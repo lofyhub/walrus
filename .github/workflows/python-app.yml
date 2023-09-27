@@ -33,25 +33,3 @@ jobs:
       run: |
         poetry install
 
-    - name: Set environment variables
-      env:
-        PORT: ${{ env.PORT }}
-        APP_NAME: ${{ env.APP_NAME }}
-        CLOUDINARY_API_SECRET: ${{ env.CLOUDINARY_API_SECRET }}
-        CLOUDINARY_API_KEY: ${{ env.CLOUDINARY_API_KEY }}
-        CLOUDINARY_CLOUD_NAME: ${{ env.CLOUDINARY_CLOUD_NAME }}
-        CLOUDINARY_APP_NAME: ${{ env.CLOUDINARY_APP_NAME }}
-        JWT_SECRET: ${{ env.JWT_SECRET }}
-        JWT_ALGORITHM: ${{ env.JWT_ALGORITHM }}
-        MySQL_DATABASE_URL: ${{ env.MySQL_DATABASE_URL }}
-      run: |
-        # These environment variables are now set and can be accessed by your Python script
-        printenv
-
-    - name: Print all environment variables
-      run: |
-        printenv
-
-    - name: Run Python script
-      run: |
-        python src/main.py
