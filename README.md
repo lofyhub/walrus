@@ -32,12 +32,12 @@ Configure your database connection in the database/database.py file.
 Run the migrations to create the necessary tables:
 
 ```shell
-poe dev
+poe con_db
 ```
 To run the project, execute the following command:
 
 ```shell
-poe con_db
+poe dev
 ```
 This will start the FastAPI server, and you can access the API endpoints through [http://localhost:8000](http://localhost:8000).
 
