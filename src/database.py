@@ -2,11 +2,22 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from config import settings
+import MySQLdb
+# Create an SQLAlchemy dialect for MySQLdb
+from sqlalchemy.dialects.mysql import mysqldb
 
-connection_string = settings.MySQL_DATABASE_URL
+# Create a MySQLdb connection using MySQLdb.connect
+connection = MySQLdb.connect(
+    host=settings.DB_HOST,
+    user=settings.DB_USERNAME,
+    passwd=settings.DB_PASSWORD,
+    db=settings.DB_NAME,
+    autocommit=True,
+)
 
-engine = create_engine(connection_string, echo=True)
- 
+
+engine = create_engine("mysql+mysqldb://", creator=lambda: connection, echo=True)
+
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()
