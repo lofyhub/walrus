@@ -13,6 +13,10 @@ connection = MySQLdb.connect(
     passwd=settings.DB_PASSWORD,
     db=settings.DB_NAME,
     autocommit=True,
+    ssl_mode = "VERIFY_IDENTITY",
+    ssl      = {
+      "ca": "/etc/ssl/cert.pem"
+    }
 )
 
 
