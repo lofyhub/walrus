@@ -37,7 +37,6 @@ async def save_business(
     ):
     try:
         uploaded_image_paths = await upload_image(images)
-        print(uploaded_image_paths)
 
         new_business = Business(
                 name =  name,

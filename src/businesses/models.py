@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Boolean, ForeignKey, DateTime
+from sqlalchemy import Column, String, Boolean, DateTime
 from sqlalchemy.orm import relationship
 from database import Base
 from sqlalchemy.ext.mutable import MutableList
@@ -11,7 +11,7 @@ class Business(Base):
     id = Column(String(36), primary_key=True, default=gen_uuid)
     name = Column(String(255), nullable=False)
     handle = Column(String(255), nullable=False)
-    images = Column(MutableList.as_mutable(PickleType),default=[], nullable=False)
+    images = Column(MutableList.as_mutable(PickleType), default=[], nullable=False)
     location = Column(String(255), nullable=False)
     county = Column(String(255), nullable=False)
     town = Column(String(255), nullable=False)
@@ -20,10 +20,9 @@ class Business(Base):
     verified = Column(Boolean, nullable=False)
     telephone_number = Column(String(255), nullable=False)
     category = Column(String(255), nullable=False)
-    amenities = Column(MutableList.as_mutable(PickleType),default=[], nullable=False)
-    user_id= Column(String(36), ForeignKey('users.id'), nullable=False)
+    amenities = Column(MutableList.as_mutable(PickleType), default=[], nullable=False)
+    user_id = Column(String(36), nullable=False)
     is_deleted = Column(Boolean, nullable=False, default=False)
     created_at = Column(DateTime, nullable=False, default=datetime.now())
-    
     user = relationship("User", back_populates="businesses")
     reviews = relationship("Review", back_populates="business")

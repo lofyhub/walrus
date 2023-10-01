@@ -5,7 +5,7 @@ from config import settings
 
 MySQL_DATABASE_URL = settings.MySQL_DATABASE_URL
 
-engine = create_engine( MySQL_DATABASE_URL, echo=True)
+engine = create_engine(MySQL_DATABASE_URL, echo=True)
  
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
