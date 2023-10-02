@@ -1,11 +1,11 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, UUID4
 from dataclasses import dataclass
 from datetime import datetime
 
 
 class OurBaseModel(BaseModel):
     class Config: 
-        orm_mode = True
+        from_attributes = True
 
 class SQLAlchemyErrorMessage(OurBaseModel):
     detail:str = "An error occurred while processing your request. Please try again later"
@@ -29,7 +29,7 @@ class LoginPayload(OurBaseModel):
 
 
 class UserResponse(OurBaseModel):
-    id: str
+    id: UUID4
     name: str
     email: EmailStr
     picture: str
@@ -43,7 +43,7 @@ class GetUser(OurBaseModel):
     users: int
 
 class UserData(OurBaseModel):
-    id: str
+    id: UUID4
     name: str
     email: str
     tel_number: str
