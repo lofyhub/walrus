@@ -57,7 +57,13 @@ async def save_review(
 async def get_reviews(skip: int = 0, limit: int = 100):
     try:
         # return none deleted users
-        all_reviews = db.query(Review).join(User).filter(Review.is_deleted == False).offset(skip).limit(limit).all()
+        all_reviews = (db.query(Review)
+                    .join(User, Review.user_id == User.id)
+                    .filter(Review.is_deleted == False)
+                    .offset(skip)
+                    .limit(limit)
+                    .all()
+                    )
         serialized_reviews = []
         print(all_reviews)
         for review in all_reviews:
@@ -77,8 +83,10 @@ async def get_reviews(skip: int = 0, limit: int = 100):
             serialized_reviews.append(serialized_review)
         response = ReviewResponse(status= str(status.HTTP_200_OK), data= serialized_reviews, reviews= len(serialized_reviews))
         return response
-    except SQLAlchemyError:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=SQLAlchemyErrorMessage)
+    except Exception as e:
+        error_message = str(e)
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"An error occurred: {error_message}")
+
 
 
 # Endpoint for retrieving a single review

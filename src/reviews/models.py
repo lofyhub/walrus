@@ -5,10 +5,11 @@ from utils import gen_uuid
 from sqlalchemy.ext.mutable import MutableList
 from sqlalchemy import PickleType
 from datetime import datetime
+from sqlalchemy.dialects.postgresql import UUID
 
 class Review(Base):
     __tablename__ = 'reviews'
-    id = Column(String(36), primary_key=True, default=gen_uuid)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=gen_uuid)
     user_id = Column(String(36), nullable=False)
     rating = Column(Integer, nullable=False)
     text = Column(Text, nullable=False)
@@ -16,7 +17,6 @@ class Review(Base):
     business_id = Column(String(36), nullable=False)
     is_deleted = Column(Boolean, nullable=False, default=False)
     created_at = Column(DateTime, nullable=False, default=datetime.now())
-    
-    user = relationship("User", back_populates="reviews")
-    business = relationship("Business", back_populates="reviews")
 
+    user = relationship("User", back_populates="reviews", primaryjoin="foreign(Review.user_id) == User.id")
+    business = relationship("Business", back_populates="reviews", primaryjoin="foreign(Review.business_id) == Business.id")

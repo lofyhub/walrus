@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, UUID4
 from typing import List
 from dataclasses import dataclass
 from datetime import datetime
@@ -6,26 +6,26 @@ from datetime import datetime
  
 class OurBaseModel(BaseModel):
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class SQLAlchemyErrorMessage(OurBaseModel):
     detail:str = "An error occurred while processing your request. Please try again later"
 
 class ReviewPayload(OurBaseModel):
-    user_id: str
+    user_id: UUID4
     rating: int
     text: str
     images: List[str]
-    business_id: str
+    business_id: UUID4
 
 class User(OurBaseModel):
       full_name: str
       photo: str
 class Reviews(OurBaseModel):
-    id: str
+    id: UUID4
     rating: int
-    business_id: str
-    user_id: str
+    business_id: UUID4
+    user_id: UUID4
     text: str
     images: List[str]
     user: User

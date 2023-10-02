@@ -4,6 +4,7 @@ from fastapi import HTTPException, status, UploadFile
 from config import settings
 import asyncio
 import uuid
+from uuid import UUID
 
 cloudinary.config(
     cloud_name=settings.CLOUDINARY_CLOUD_NAME,
@@ -23,6 +24,5 @@ async def upload_image(files:list[UploadFile]):
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Error uploading images: {e}")
 
-def gen_uuid() -> str:
-    generated_id = uuid.uuid4()
-    return generated_id.hex
+def gen_uuid() -> UUID:
+    return uuid.uuid4()

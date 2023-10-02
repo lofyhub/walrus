@@ -1,11 +1,11 @@
 from typing import List, Optional, Any
-from pydantic import BaseModel
+from pydantic import BaseModel, UUID4
 from enum import Enum
 from datetime import datetime
 
 class OurBaseModel(BaseModel):
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class DefaultResponse(OurBaseModel):
     status: bool
@@ -91,13 +91,13 @@ class BusinessPayloadd(OurBaseModel):
     business_description: str
     telephone_number: str
     category: str
-    user_id: str
+    user_id: UUID4
     amenities: List[str]
     created_at: str
 
 
 class ResponseBusiness(OurBaseModel):
-    id: str
+    id: UUID4
     name: str
     handle: str
     location: str
@@ -105,7 +105,7 @@ class ResponseBusiness(OurBaseModel):
     county: str
     verified: bool
     category: str
-    user_id: str
+    user_id: UUID4
     business_description: str
     opening_hours: List[str]
     amenities: List[str]

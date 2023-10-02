@@ -84,20 +84,23 @@ async def get_users(skip: int = 0, limit: int = 100):
                 email=user.email,
                 picture=user.picture,
                 is_deleted=user.is_deleted,
-                tel_number=user.tel_number,
+                tel_number=user.tel_number, 
                 created_at=user.created_at,
             )
             for user in all_users
         ]
-        
         users = GetUser(
             status=str(status.HTTP_200_OK),
             data= user_responses,
             users= len(user_responses), 
         )
         return users
-    except SQLAlchemyError:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=SQLAlchemyErrorMessage)
+    except Exception as e:
+        # Handle the error here, e.g., log it
+        error_message = str(e)
+        # You can also raise a more specific FastAPI HTTPException with a custom error message
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"An error occurred: {error_message}")
+
 
 
 # Endpoint for retrieving a single user
