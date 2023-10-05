@@ -1,15 +1,17 @@
 from fastapi import status, HTTPException, APIRouter, Response, Form, UploadFile, Depends
-from typing import Annotated, Optional
+from typing import Annotated, Optional, Union
 from fastapi.security import OAuth2PasswordBearer
 from database import SessionLocal
-from .schemas import  SQLAlchemyErrorMessage, SaveResponse, ReviewResponse
+from .schemas import  SQLAlchemyErrorMessage, SaveResponse, ReviewResponse, ReviewPayload
 from .models import Review
 from users.models import User
 from datetime import datetime
 from typing import List
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm import joinedload
 from utils import upload_image
 from auth.auth_bearer import JWTBearer
+import uuid
 
 # Create a database session
 db = SessionLocal()
@@ -27,28 +29,32 @@ async def save_review(
     rating: Annotated[str, Form()],
     business_id: Annotated[str, Form()],
     user_id: Annotated[str, Form()],
-    images: Optional[List[UploadFile]] = None,
+    images: Union[UploadFile, List[UploadFile], None],
     ):
     try:
-
         uploaded_image_paths = []
-        if images:
+        if images is not None:
             uploaded_image_paths = await upload_image(images)
-        
+        print(uploaded_image_paths)
         new_review = Review(
             images = uploaded_image_paths,
             text = text,
             rating = int(rating),
-            business_id = business_id,
-            user_id = user_id,
+            business_id = uuid.UUID(business_id),
+            user_id = uuid.UUID(user_id),
         )
 
         db.add(new_review)
         db.commit()
         response = SaveResponse(status='201', message="Review successfully saved")
         return response
-    except SQLAlchemyError:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=SQLAlchemyErrorMessage)
+    # TODO: handle and log this errors in a better way
+    except SQLAlchemyError as e:
+        print("SQLAlchemy error: %s", str(e))
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"An error occurred: {str(e)}")
+    except Exception as e:
+        print("Unexpected error:", str(e))
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"An error occurred: {str(e)}")
 
 
 
@@ -65,7 +71,6 @@ async def get_reviews(skip: int = 0, limit: int = 100):
                     .all()
                     )
         serialized_reviews = []
-        print(all_reviews)
         for review in all_reviews:
             serialized_review = {
                 'id': review.id,
@@ -93,11 +98,17 @@ async def get_reviews(skip: int = 0, limit: int = 100):
 @router.get('/reviews/{business_id}', response_model=ReviewResponse, status_code=status.HTTP_200_OK)
 async def get_single_reviews(business_id: str):
     try:
-        # return a single review
-        business_reviews: ReviewResponse= db.query(Review).join(User).filter(Review.business_id == business_id).all()
+        # return all reviews for a user
+        business_uuid = uuid.UUID(business_id)
+        business_reviews = (
+            db.query(Review)
+            .filter(Review.business_id == business_uuid)
+            .options(joinedload(Review.user))
+            .all()
+        )
 
         if business_reviews is None:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Business reviews for {business_id} not found")
+            return ReviewResponse(status= str(status.HTTP_200_OK), detail=f"Reviews for Business with id: {business_id} not found")
         
         serialized_reviews = []
         

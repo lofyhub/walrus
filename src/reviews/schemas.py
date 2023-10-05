@@ -2,6 +2,7 @@ from pydantic import BaseModel, UUID4
 from typing import List
 from dataclasses import dataclass
 from datetime import datetime
+from fastapi import UploadFile
 
  
 class OurBaseModel(BaseModel):
@@ -12,11 +13,11 @@ class SQLAlchemyErrorMessage(OurBaseModel):
     detail:str = "An error occurred while processing your request. Please try again later"
 
 class ReviewPayload(OurBaseModel):
-    user_id: UUID4
+    user_id: str
     rating: int
     text: str
-    images: List[str]
-    business_id: UUID4
+    business_id: str
+    images: list[UploadFile] | None = None
 
 class User(OurBaseModel):
       full_name: str

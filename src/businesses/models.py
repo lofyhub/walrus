@@ -22,7 +22,7 @@ class Business(Base):
     telephone_number = Column(String(255), nullable=False)
     category = Column(String(255), nullable=False)
     amenities = Column(MutableList.as_mutable(PickleType), default=[], nullable=False)
-    user_id = Column(String(36), nullable=False)
+    user_id = Column(UUID(as_uuid=True), nullable=False)
     is_deleted = Column(Boolean, nullable=False, default=False)
     created_at = Column(DateTime, nullable=False, default=datetime.now())
 

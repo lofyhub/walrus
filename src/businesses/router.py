@@ -2,12 +2,13 @@ from fastapi import status, HTTPException, APIRouter, Response, Form, UploadFile
 from typing import Annotated, List
 from fastapi.security import OAuth2PasswordBearer
 from database import SessionLocal
-from .schemas import ResponseBusiness, SaveResponse, SQLAlchemyErrorMessage
+from .schemas import ResponseBusiness, SaveResponse, SQLAlchemyErrorMessage, GetBusinesses
 from .models import Business
 from datetime import datetime
 from sqlalchemy.exc import SQLAlchemyError
 from utils import upload_image
 from auth.auth_bearer import JWTBearer
+import uuid
 
 # Create a database session
 db = SessionLocal()
@@ -49,7 +50,7 @@ async def save_business(
                 business_description = business_description,
                 telephone_number = telephone_number,
                 category = category,
-                user_id = user_id,
+                user_id = uuid.UUID(user_id),
                 amenities = amenities,
                 verified = False,
                 created_at = datetime.now(),
@@ -57,20 +58,28 @@ async def save_business(
 
         db.add(new_business)
         db.commit()
-        response = SaveResponse(status=status.HTTP_201_CREATED, message="Business successfully saved")
-        return Response(content=response.json(), media_type='application/json', status_code=status.HTTP_201_CREATED)
-    except SQLAlchemyError:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=SQLAlchemyErrorMessage)
-
-
+        response = SaveResponse(status="201", message="Business successfully saved")
+        return Response(content=response.model_dump_json(), media_type='application/json', status_code=status.HTTP_201_CREATED)
+    except SQLAlchemyError as e:
+        print("SQLAlchemy error: %s", str(e))
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"An error occurred: {str(e)}")
+    except Exception as e:
+        print("Unexpected error:", str(e))
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"An error occurred: {str(e)}")
 
 # Endpoint for retrieving  business
-@router.get('/businesses/', response_model=List[ResponseBusiness], status_code=status.HTTP_200_OK)
+@router.get('/businesses/', response_model=GetBusinesses, status_code=status.HTTP_200_OK)
 async def get_businesses(skip: int = 0, limit: int = 100):
     try:
         # return none deleted businesses
         all_businesses: List[ResponseBusiness] = db.query(Business).filter(Business.is_deleted == False).offset(skip).limit(limit).all()
-        return all_businesses
+        
+        businesses_response = GetBusinesses(
+            status='200',
+            data=all_businesses,
+            businesses=str(len(all_businesses))
+        )
+        return businesses_response
     except SQLAlchemyError:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=SQLAlchemyErrorMessage)
 
@@ -79,8 +88,10 @@ async def get_businesses(skip: int = 0, limit: int = 100):
 @router.get('/businesses/{business_id}', response_model=ResponseBusiness, status_code=status.HTTP_200_OK)
 async def get_single_business(business_id: str):
     try:
+
+        business_uuid = uuid.UUID(business_id)
         # return a single business
-        single_business: ResponseBusiness = db.query(Business).filter(Business.id == business_id and Business.is_deleted == False).first()
+        single_business: ResponseBusiness = db.query(Business).filter(Business.id == business_uuid and Business.is_deleted == False).first()
 
         if single_business is None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Business with id {business_id}not found")

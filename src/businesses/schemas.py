@@ -116,3 +116,8 @@ class ResponseBusiness(OurBaseModel):
 class SaveResponse(OurBaseModel):
     status: str
     message: str
+
+class GetBusinesses(OurBaseModel):
+    status: str
+    data: list[ResponseBusiness]
+    businesses: str

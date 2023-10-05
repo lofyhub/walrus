@@ -10,11 +10,11 @@ from sqlalchemy.dialects.postgresql import UUID
 class Review(Base):
     __tablename__ = 'reviews'
     id = Column(UUID(as_uuid=True), primary_key=True, default=gen_uuid)
-    user_id = Column(String(36), nullable=False)
+    user_id = Column(UUID(as_uuid=True), nullable=False)
     rating = Column(Integer, nullable=False)
     text = Column(Text, nullable=False)
-    images = Column(MutableList.as_mutable(PickleType), default=[], nullable=False)
-    business_id = Column(String(36), nullable=False)
+    images = Column(MutableList.as_mutable(PickleType), nullable=False)
+    business_id = Column(UUID(as_uuid=True), nullable=False)
     is_deleted = Column(Boolean, nullable=False, default=False)
     created_at = Column(DateTime, nullable=False, default=datetime.now())
 
