@@ -6,12 +6,13 @@ from businesses.router import business_routes
 from reviews.router import reviews_routes
 from users.router import users_routes
 from auth.router import auth_routes
+from config import settings
 
 app=FastAPI()
 
 
 origins = [
-    'http://localhost:3000'
+    settings.FRONTEND_URL
 ]
 
 app.add_middleware(

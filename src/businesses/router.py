@@ -1,4 +1,4 @@
-from fastapi import status, HTTPException, APIRouter, Response, Form, UploadFile, Depends
+from fastapi import status, APIRouter, Response, Form, UploadFile, Depends
 from typing import Annotated, List, Union
 from fastapi.security import OAuth2PasswordBearer
 from database import SessionLocal
