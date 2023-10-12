@@ -120,4 +120,8 @@ class SaveResponse(OurBaseModel):
 class GetBusinesses(OurBaseModel):
     status: str
     data: list[ResponseBusiness]
-    businesses: str
+
+class BusinessNotFound(OurBaseModel):
+    status: str = '404'
+    message: str = 'No businesses was found'
+    businesses: Optional[str] = None

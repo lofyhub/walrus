@@ -18,6 +18,7 @@ class Settings(BaseSettings):
     DB_USERNAME:str
     DB_PASSWORD: str
     DB_NAME:str
+    FRONTEND_URL: str
 
     class Config:
         env_file = ".env"
