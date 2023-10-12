@@ -1,13 +1,13 @@
 from fastapi import status, HTTPException, APIRouter, Response, Form, UploadFile, Depends
-from typing import Annotated, List
+from typing import Annotated, List, Union
 from fastapi.security import OAuth2PasswordBearer
 from database import SessionLocal
-from .schemas import ResponseBusiness, SaveResponse, SQLAlchemyErrorMessage, GetBusinesses
+from .schemas import ResponseBusiness, SaveResponse, GetBusinesses, BusinessNotFound
 from .models import Business
 from datetime import datetime
-from sqlalchemy.exc import SQLAlchemyError
 from utils import upload_image
 from auth.auth_bearer import JWTBearer
+from .error_handler import exception_handler
 import uuid
 
 # Create a database session
@@ -60,32 +60,29 @@ async def save_business(
         db.commit()
         response = SaveResponse(status="201", message="Business successfully saved")
         return Response(content=response.model_dump_json(), media_type='application/json', status_code=status.HTTP_201_CREATED)
-    except SQLAlchemyError as e:
-        print("SQLAlchemy error: %s", str(e))
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"An error occurred: {str(e)}")
     except Exception as e:
-        print("Unexpected error:", str(e))
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"An error occurred: {str(e)}")
+        exception_handler(e)
 
 # Endpoint for retrieving  business
-@router.get('/businesses/', response_model=GetBusinesses, status_code=status.HTTP_200_OK)
+@router.get('/businesses/', response_model=Union[GetBusinesses, BusinessNotFound], status_code=status.HTTP_200_OK)
 async def get_businesses(skip: int = 0, limit: int = 100):
     try:
         # return none deleted businesses
         all_businesses: List[ResponseBusiness] = db.query(Business).filter(Business.is_deleted == False).offset(skip).limit(limit).all()
+
+        if all_businesses is None:
+            return BusinessNotFound
         
-        businesses_response = GetBusinesses(
+        return GetBusinesses(
             status='200',
             data=all_businesses,
             businesses=str(len(all_businesses))
         )
-        return businesses_response
-    except SQLAlchemyError:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=SQLAlchemyErrorMessage)
-
+    except Exception as e:
+        exception_handler(e)
 
 # Endpoint for retrieving a single business
-@router.get('/businesses/{business_id}', response_model=ResponseBusiness, status_code=status.HTTP_200_OK)
+@router.get('/businesses/{business_id}/', response_model=Union[ResponseBusiness, BusinessNotFound], response_model_exclude_none=True, status_code=status.HTTP_200_OK)
 async def get_single_business(business_id: str):
     try:
 
@@ -94,21 +91,28 @@ async def get_single_business(business_id: str):
         single_business: ResponseBusiness = db.query(Business).filter(Business.id == business_uuid and Business.is_deleted == False).first()
 
         if single_business is None:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Business with id {business_id}not found")
+            not_found = BusinessNotFound(
+                status= str(status.HTTP_404_NOT_FOUND),
+                message=f"Business with id {business_id} not found",
+            )
+            return Response(status_code=status.HTTP_404_NOT_FOUND, content=not_found.model_dump_json(), media_type='application/json') 
+        
         return single_business
-    except SQLAlchemyError:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=SQLAlchemyErrorMessage)
-
+    except Exception as e:
+        exception_handler(e)
 
 
 # Endpoint for updating a business
-@router.put('/businesses/{business_id}/',dependencies=[Depends(JWTBearer())], response_model=SaveResponse, status_code=status.HTTP_200_OK)
+@router.put('/businesses/{business_id}/',dependencies=[Depends(JWTBearer())], response_model=Union[SaveResponse, BusinessNotFound], status_code=status.HTTP_200_OK)
 async def update_a_business(business_id: int, business_to_update: ResponseBusiness):
     try:
         entry_to_update = db.query(Business).filter(Business.id == business_id and Business.is_deleted == False).first()
 
         if entry_to_update is None:
-            raise HTTPException(status_code=400, detail=f"Entry with id {business_id} was not found")
+            business_not_found = BusinessNotFound(
+                message=f"Busineess entry with id {business_id} not found"
+                )
+            return Response(status_code=status.HTTP_404_NOT_FOUND, content=business_not_found.model_dump_json(), media_type='application/json') 
         
         uploaded_image_paths = []
         for base64_image in business_to_update.images:
@@ -129,9 +133,8 @@ async def update_a_business(business_id: int, business_to_update: ResponseBusine
         db.commit()
         response = SaveResponse(status=status.HTTP_200_OK, message=f"Business with id {business_id} updated successfully.")
         return Response(content=response.json(), media_type='application/json', status_code=status.HTTP_200_OK)
-    except SQLAlchemyError:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=SQLAlchemyErrorMessage)
-
+    except Exception as e:
+        exception_handler(e)
 
 
 # Endpoint for deleting a business
@@ -141,7 +144,10 @@ async def delete_a_business(business_id: int):
         business_to_delete = db.query(Business).filter(Business.id == business_id and Business.is_deleted == False).first()
 
         if business_to_delete is None:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Business with id {business_id} was not found")
+            not_found = BusinessNotFound(
+                message = f"Business with id {business_id} was not found",
+            )
+            return Response(content=not_found.model_dump_json(), media_type='application/json', status_code=status.HTTP_404_NOT_FOUND)
         
         # soft delete
         business_to_delete.is_deleted = True
@@ -149,8 +155,8 @@ async def delete_a_business(business_id: int):
         db.commit()
         response = SaveResponse(status=status.HTTP_200_OK, message=f"Business with id {business_id} was successfully deleted")
         return Response(content=response.json(), media_type='application/json', status_code=status.HTTP_200_OK)
-    except SQLAlchemyError:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=SQLAlchemyErrorMessage)
+    except Exception as e:
+        exception_handler(e)
 
 # Export the router
 business_routes = router

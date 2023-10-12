@@ -1,5 +1,5 @@
 from typing import List, Optional, Any
-from pydantic import BaseModel, UUID4
+from pydantic import BaseModel, UUID4, validator
 from enum import Enum
 from datetime import datetime
 
@@ -120,4 +120,8 @@ class SaveResponse(OurBaseModel):
 class GetBusinesses(OurBaseModel):
     status: str
     data: list[ResponseBusiness]
-    businesses: str
+
+class BusinessNotFound(OurBaseModel):
+    status: str = '404'
+    message: str = 'No businesses was found'
+    businesses: Optional[str] = None
