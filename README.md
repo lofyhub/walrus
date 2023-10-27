@@ -329,3 +329,5 @@ Please ensure that your contributions adhere to the [Code of Conduct](CONTRIBUTI
 This project is licensed under the [GNU AFFERO GENERAL PUBLIC LICENSE 3](./LICENSE)
 
 Please see the [LICENSE](LICENSE) file for more details.
+
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)

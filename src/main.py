@@ -8,12 +8,10 @@ from users.router import users_routes
 from auth.router import auth_routes
 from config import settings
 
-app=FastAPI()
+app = FastAPI()
 
 
-origins = [
-    settings.FRONTEND_URL
-]
+origins = [settings.FRONTEND_URL]
 
 app.add_middleware(
     CORSMiddleware,
@@ -30,12 +28,11 @@ app.include_router(auth_routes)
 
 app_config = config
 
-@app.get('/health')
+
+@app.get("/health")
 async def health_check():
-    return {
-        'app_name': app_config.settings.APP_NAME,
-        'status':'ok 👍 '
-        }
+    return {"app_name": app_config.settings.APP_NAME, "status": "ok 👍 "}
+
 
 if __name__ == "__main__":
     port = int(app_config.settings.PORT)
