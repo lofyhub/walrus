@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 import uuid
 
 
-async def save_user(db: Session, new_business):
+async def save_business_db(db: Session, new_business):
     try:
         db.add(new_business)
         db.commit()

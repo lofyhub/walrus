@@ -16,7 +16,7 @@ from utils import upload_image
 from auth.auth_bearer import JWTBearer
 from auth.auth import get_user_from_token
 from .error_handler import exception_handler
-from .services import save_user, query_businesses, query_single_business
+from .services import save_business_db, query_businesses, query_single_business
 from sqlalchemy.orm import Session
 from fastapi.encoders import jsonable_encoder
 import uuid
@@ -67,10 +67,9 @@ async def save_business(
             user_id=uuid.UUID(user_id),
             amenities=amenities,
             verified=False,
-            created_at=datetime.now(),
         )
 
-        await save_user(db, new_business)
+        await save_business_db(db, new_business)
 
         response_data = {
             "status": "201",

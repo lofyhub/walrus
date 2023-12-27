@@ -12,7 +12,7 @@ from typing import Annotated, Union, Optional
 from fastapi.security import OAuth2PasswordBearer
 from fastapi.responses import JSONResponse
 from database import get_db
-from .schemas import SQLAlchemyErrorMessage, SaveResponse, ReviewResponse
+from .schemas import SQLAlchemyErrorMessage, SaveResponse, ReviewResponse, UpdateReview
 from .models import Review
 from users.models import User
 from datetime import datetime
@@ -36,7 +36,6 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 @router.post(
     "/reviews/",
     dependencies=[Depends(JWTBearer())],
-    response_model=SaveResponse,
     status_code=status.HTTP_201_CREATED,
 )
 async def save_review(
@@ -44,7 +43,7 @@ async def save_review(
     rating: Annotated[str, Form()],
     business_id: Annotated[str, Form()],
     user_id: Annotated[str, Form()],
-    images: Union[UploadFile, List[UploadFile], None]=None,
+    images: Union[UploadFile, List[UploadFile], None] = None,
     db=Depends(get_db),
 ):
     try:
@@ -59,7 +58,12 @@ async def save_review(
             user_id=uuid.UUID(user_id),
         )
         await save_user_reviews(db, new_review)
-        return SaveResponse(status="201", message="Review successfully saved")
+
+        response_data = SaveResponse(status="201", message="Review successfully saved")
+
+        return JSONResponse(
+            content=response_data.model_dump(), status_code=status.HTTP_201_CREATED
+        )
     except Exception as error:
         exception_handler(error)
 
@@ -113,13 +117,16 @@ async def get_single_reviews(
 
         if not business_reviews:
             return JSONResponse(
-                content={"status": "200", "detail": f"Reviews for Business with id: `{business_id}` not found"},
+                content={
+                    "status": "200",
+                    "message": f"Reviews for Business with id: `{business_id}` not found",
+                },
                 status_code=status.HTTP_200_OK,
             )
         serialized_reviews = []
 
         for review in business_reviews:
-            # TODO: their is a better way to do this than converting strings 
+            # TODO: their is a better way to do this than converting strings
             # For now just using str -> Object of type UUID is not JSON serializable
             serialized_review = {
                 "id": str(review.id),
@@ -135,11 +142,15 @@ async def get_single_reviews(
                 "created_at": str(review.created_at),
             }
             serialized_reviews.append(serialized_review)
-        
+
         return JSONResponse(
-                content={"status": "200", "data": serialized_reviews, "message":"Succesful"},
-                status_code=status.HTTP_200_OK,
-            )
+            content={
+                "status": "200",
+                "data": serialized_reviews,
+                "message": "Succesful",
+            },
+            status_code=status.HTTP_200_OK,
+        )
     except Exception as error:
         exception_handler(error)
 
@@ -152,17 +163,39 @@ async def get_single_reviews(
     status_code=status.HTTP_200_OK,
 )
 async def update_a_review(
-    review_id: int, review_to_update: ReviewResponse, db=Depends(get_db)
+    review_id: str,
+    review_to_update: UpdateReview,
+    db=Depends(get_db),
+    authorization: str = Header(None),
 ):
     try:
-        entry_to_update = db.query(Review).filter(Review.id == review_id).first()
+        review_uuid = uuid.UUID(review_id)
+
+        entry_to_update = db.query(Review).filter(Review.id == review_uuid).first()
 
         if entry_to_update is None:
             raise HTTPException(
                 status_code=400, detail=f"Review with id {review_id} was not found"
             )
 
-        entry_to_update.rating = review_to_update.rating
+        token = (
+            authorization.split(" ")[1]
+            if authorization and " " in authorization
+            else None
+        )
+
+        user_id_from_token = get_user_from_token(token)
+
+        if user_id_from_token["user_id"] != entry_to_update.user_id:
+            return JSONResponse(
+                status_code=status.HTTP_403_FORBIDDEN,
+                content={
+                    "status": "403",
+                    "message": "You can only update your resource",
+                },
+            )
+
+        entry_to_update.rating = int(review_to_update.rating)
         entry_to_update.text = review_to_update.text
         entry_to_update.created_at = datetime.now()
 
@@ -186,8 +219,6 @@ async def update_a_review(
 @router.delete(
     "/reviews/{review_id}/",
     dependencies=[Depends(JWTBearer())],
-    response_model=SaveResponse,
-    status_code=status.HTTP_200_OK,
 )
 async def delete_a_review(
     review_id: str, db=Depends(get_db), authorization: str = Header(None)
@@ -202,14 +233,17 @@ async def delete_a_review(
         review_to_delete = db.query(Review).filter(Review.id == review_uuid).first()
 
         if not review_to_delete:
-            raise HTTPException(
+            return JSONResponse(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Review with id `{review_id}` was not found",
+                content={
+                    "status": "404",
+                    "message": f"Review with id `{review_id}` was not found",
+                },
             )
 
         user_info_from_token = get_user_from_token(token)
 
-        if user_info_from_token["user_id"] != review_to_delete.id:
+        if user_info_from_token["user_id"] != review_to_delete.user_id:
             return JSONResponse(
                 status_code=status.HTTP_403_FORBIDDEN,
                 content={

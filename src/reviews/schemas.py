@@ -49,3 +49,8 @@ class ReviewResponse(OurBaseModel):
 class SaveResponse(OurBaseModel):
     status: str
     message: str
+
+
+class UpdateReview(OurBaseModel):
+    rating: str
+    text: str

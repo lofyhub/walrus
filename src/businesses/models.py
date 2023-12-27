@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Boolean, DateTime
+from sqlalchemy import String, Boolean, DateTime
 from sqlalchemy.orm import relationship, mapped_column
 from database import Base
 from sqlalchemy.ext.mutable import MutableList

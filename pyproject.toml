@@ -8,6 +8,7 @@ readme = "README.md"
 
 [tool.poetry.group.dev.dependencies]
 black = "^23.9.1"
+pytest = "^7.4.3"
 
 [tool.poe.tasks]
 dev = "python3 src/main.py"
@@ -37,6 +38,9 @@ mysql-connector-python = "^8.1.0"
 [tool.poetry.dev-dependencies]
 fastapi = "^0.103.1"
 poethepoet = "^0.22.1"
+
+[tool.pytest]
+addopts = ["-vv", "--cov=my_project"]
 
 [build-system]
 requires = ["poetry-core"]

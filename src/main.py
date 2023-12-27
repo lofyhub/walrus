@@ -6,6 +6,7 @@ from businesses.router import business_routes
 from reviews.router import reviews_routes
 from users.router import users_routes
 from auth.router import auth_routes
+from reviewed_businesses.router import reviewed_business_routes
 from config import settings
 
 app = FastAPI()
@@ -25,6 +26,7 @@ app.include_router(business_routes)
 app.include_router(reviews_routes)
 app.include_router(users_routes)
 app.include_router(auth_routes)
+app.include_router(reviewed_business_routes)
 
 app_config = config
 

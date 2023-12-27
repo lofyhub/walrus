@@ -33,7 +33,7 @@ async def login_user(login_payload: LoginPayload, db=Depends(get_db)):
         response = SuccessResponse(
             status=str(status.HTTP_200_OK),
             access_token=access_token,
-            user= check_user,
+            user=check_user,
             message="Login successfull",
         )
         return response

@@ -15,12 +15,16 @@ class SQLAlchemyErrorMessage(OurBaseModel):
 class LoginPayload(OurBaseModel):
     fullname: str
     email: EmailStr
+
+
 class UserSignup(OurBaseModel):
     id: UUID4
     name: str
     email: str
     tel_number: str
     picture: str
+
+
 class SuccessResponse(OurBaseModel):
     status: str
     message: str
