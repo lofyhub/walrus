@@ -3,9 +3,9 @@ import io
 from .test_auth import client, test_login, test_user
 from .test_review_business import read_image
 from src.auth.auth import get_user_from_token
+from src.config import settings
 
-
-def test_post_review_business(client: TestClient, test_user: dict):
+def test_post_review_business(client: TestClient, test_user: dict): 
     image_data = [
         read_image("safety-dance.jpg"),
     ]
@@ -16,11 +16,12 @@ def test_post_review_business(client: TestClient, test_user: dict):
 
     token = test_login(client, test_user)
     user_id = get_user_from_token(token)["user_id"]
+    business_id = settings.TEST_VALID_BUSINESS_ID
 
     test_data = {
         "text": "This is a sample review text.",
         "rating": "5",
-        "business_id": "04075ed7f6df4720a0db478fca6de3e8",  # TODO: USE DYNAMIC BUSINESS_ID
+        "business_id": business_id,
         "user_id": user_id,
     }
     response = client.post(
@@ -51,7 +52,7 @@ def test_get_review_business(client: TestClient, test_user: dict):
 
 # test get a single review
 def test_get_reviews_of_a_specific_business(client: TestClient, test_user: dict):
-    invalid_id = "00d75e56-a5b7-4655-91b0-210cb4bd8e54"
+    invalid_id = settings.TEST_INVALID_REVIEW_ID
 
     response = client.get(f"/review/{invalid_id}")
 
@@ -68,7 +69,7 @@ def test_get_reviews_of_a_specific_business(client: TestClient, test_user: dict)
 
 # test update a given review
 def test_update_reviews_of_a_specific_business(client: TestClient, test_user: dict):
-    valid_review_id = "5e3706b0-5f6f-4ac7-92ec-a6ad0a0ba5db"
+    valid_review_id = settings.TEST_VALID_REVIEW_ID
 
     test_data = {
         "text": "This is a sample review text.",
@@ -96,7 +97,7 @@ def test_update_reviews_of_a_specific_business(client: TestClient, test_user: di
 
 # test deletion of a given review
 def test_deletion_of_a_given_review(client: TestClient, test_user: dict):
-    invalid_review_id = "3611b048-7d4d-46f1-bf31-698e673056e1"
+    invalid_review_id = settings.TEST_INVALID_REVIEW_ID
 
     token = test_login(client, test_user)
 

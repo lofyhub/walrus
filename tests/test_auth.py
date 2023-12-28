@@ -1,5 +1,6 @@
 from src.main import app
 from fastapi.testclient import TestClient
+from src.config import settings
 import pytest
 
 
@@ -11,7 +12,9 @@ def client():
 
 @pytest.fixture(scope="module")
 def test_user():
-    return {"email": "johnphiliyui9@gmail.com", "fullname": "John Philip"}
+    email = settings.TEST_VALID_EMAIL
+    fullname = settings.TEST_VALID_FULLNAME
+    return {"email": email, "fullname": fullname}
 
 
 def test_login(client, test_user):

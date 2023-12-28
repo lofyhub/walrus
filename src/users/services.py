@@ -23,8 +23,8 @@ def save_user_to_db(db: Session, user_payload: UserPayload):
 
 def query_user_by_email(db: Session, user_payload: UserPayload):
     try:
-        check_email = db.query(User).filter(User.email == user_payload.email).first()
-        return check_email is not None
+        user_exists = db.query(User).filter(User.email == user_payload.email).first() is not None
+        return user_exists
     except Exception as error:
         raise error
 

@@ -37,7 +37,7 @@ async def save_user(user_payload: UserPayload, db=Depends(get_db)):
     try:
         check_email = query_user_by_email(db, user_payload)
         check_tel_number = query_user_by_number(db, user_payload)
-
+        print(check_email)
         if check_email:
             message = f"Email `{user_payload.email}` already registered"
             return JSONResponse(
@@ -70,7 +70,7 @@ async def save_user(user_payload: UserPayload, db=Depends(get_db)):
         )
 
         return JSONResponse(
-            content=response.dict(), status_code=status.HTTP_201_CREATED
+            content=response.model_dump(), status_code=status.HTTP_201_CREATED
         )
     except Exception as error:
         exception_handler(error)
@@ -107,10 +107,8 @@ async def get_users(skip: int = 0, limit: int = 100, db=Depends(get_db)):
         exception_handler(error)
 
 
-@router.get(
-    "/user/{user_id}",
-    dependencies=[Depends(JWTBearer())],
-)
+# endpoint to get a single user
+@router.get("/user/{user_id}")
 async def get_single_user(user_id: str, db=Depends(get_db)):
     try:
         single_user = await query_user(db, user_id)
@@ -145,7 +143,7 @@ async def get_single_user(user_id: str, db=Depends(get_db)):
         exception_handler(error)
 
 
-# Endpoint for updating a review
+# Endpoint for updating a user
 @router.put(
     "/users/{user_id}/",
     dependencies=[Depends(JWTBearer())],
@@ -166,7 +164,7 @@ async def update_a_user(
         )
 
         entry_to_update = await query_user(db, user_id)
-        user_info_from_token = get_user_from_token(token)
+        user_info_from_token = get_user_from_token(token)["user_id"]
 
         if not entry_to_update:
             response_data = {
@@ -177,7 +175,7 @@ async def update_a_user(
                 content=response_data, status_code=status.HTTP_404_NOT_FOUND
             )
 
-        if user_info_from_token["user_id"] != entry_to_update.id:
+        if user_info_from_token != entry_to_update.id:
             response_data = {
                 "status": "403",
                 "message": "You can only update your own resource",
@@ -212,7 +210,7 @@ async def update_a_user(
         exception_handler(error)
 
 
-# Endpoint for deleting a review
+# Endpoint for deleting a user
 @router.delete(
     "/users/{user_id}/",
     dependencies=[Depends(JWTBearer())],

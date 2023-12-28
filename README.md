@@ -41,6 +41,12 @@ poe dev
 ```
 This will start the FastAPI server, and you can access the API endpoints through [http://localhost:8000](http://localhost:8000).
 
+To run tests, execute the following command:
+
+```shell
+poetry run pytest 
+```
+
 
 ## API Models
 

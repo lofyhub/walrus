@@ -20,6 +20,15 @@ class Settings(BaseSettings):
     DB_PASSWORD: str
     DB_NAME: str
     FRONTEND_URL: str
+    TEST_INVALID_USER_ID: str
+    TEST_VALID_USER_ID: str
+    TEST_INVALID_REVIEW_ID: str
+    TEST_VALID_REVIEW_ID: str
+    TEST_INVALID_BUSINESS_ID: str
+    TEST_VALID_BUSINESS_ID: str
+    TEST_VALID_EMAIL: str
+    TEST_VALID_FULLNAME: str
+    TEST_VALID_TEL_NUMBER: str
 
     class Config:
         env_file = ".env"
