@@ -54,16 +54,17 @@ async def save_user(user_payload: UserPayload, db=Depends(get_db)):
 
         new_user = save_user_to_db(db, user_payload)
         access_token = sign_jwt(new_user)
-
+      
         user_data = UserData(
-            id=new_user.id,
+            id=str(new_user.id),
             name=new_user.name,
             email=new_user.email,
+            tel_number=new_user.tel_number,
             picture=new_user.picture,
             access_token=access_token,
         )
-
-        response = SaveResponse(
+        
+        response = SaveResponse( 
             status=str(status.HTTP_201_CREATED),
             message="User successfully saved",
             user=user_data,

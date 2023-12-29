@@ -56,7 +56,7 @@ class GetUser(OurBaseModel):
 
 
 class UserData(OurBaseModel):
-    id: UUID4
+    id: str
     name: str
     email: str
     tel_number: str

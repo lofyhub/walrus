@@ -8,7 +8,7 @@ def test_add_user(client: TestClient, test_user: dict):
     test_data = {
         "email": "test_email@gmail.com",
         "fullname": "Test Name",
-        "tel_number": "0707996350",
+        "tel_number": settings.TEST_VALID_TEL_NUMBER,
         "picture": "https://images.pexels.com/photos/19561453/pexels-photo-19561453.jpeg?auto=compress&cs=tinysrgb&w=800&lazy=load",
     }
 
