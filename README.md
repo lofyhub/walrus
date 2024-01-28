@@ -1,4 +1,4 @@
-
+[![Walrus Action](https://github.com/lofyhub/walrus/actions/workflows/python-app.yml/badge.svg)](https://github.com/lofyhub/walrus/actions/workflows/python-app.yml)
 <div align="center">
 
 <h1>Walrus</h1>
